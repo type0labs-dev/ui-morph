@@ -1,35 +1,77 @@
-/* NOVA demo store — deliberately plain, so the morphs are what you notice. */
+/* NOVA demo store. All component styles consume design tokens (custom
+   properties); a theme is a token set selected by the engine via
+   swap-variant on the "theme" manifest entry — sketch 05-ui-variations. */
+
+body {
+  /* default theme — light, broad-audience */
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --text: #16161a;
+  --muted: #5a5a66;
+  --border: #e3e3ea;
+  --accent: #0b66ff;
+  --accent-text: #ffffff;
+  --radius: 8px;
+  --emphasis: #0b66ff;
+}
+
+/* tech-savvy — dense, dark navy, data-first (sketch card #2) */
+body:has([data-morph="theme"][data-morph-variant-active="tech-savvy"]) {
+  --bg: #0e1a26;
+  --surface: #132434;
+  --text: #dbe7f3;
+  --muted: #8aa3ba;
+  --border: #1f3850;
+  --accent: #38bdf8;
+  --accent-text: #06121d;
+  --radius: 4px;
+  --emphasis: #38bdf8;
+}
+
+/* gamer — near-black, purple primary, rounded (sketch card #3) */
+body:has([data-morph="theme"][data-morph-variant-active="gamer"]) {
+  --bg: #0a0a12;
+  --surface: #12121f;
+  --text: #e8e6f5;
+  --muted: #9a95b8;
+  --border: #262440;
+  --accent: #7c3aed;
+  --accent-text: #ffffff;
+  --radius: 14px;
+  --emphasis: #a78bfa;
+}
+
 * { box-sizing: border-box; margin: 0; }
-body { font: 16px/1.6 system-ui, sans-serif; background: #0b0b0e; color: #e8e8ec; padding-bottom: 40vh; }
+body { font: 16px/1.6 system-ui, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 40vh; }
 a { color: inherit; }
-nav { display: flex; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid #26262c; }
+nav { display: flex; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); }
 nav a { margin-left: 16px; text-decoration: none; font-size: 13px; letter-spacing: .08em; }
 header { padding: 64px 24px; max-width: 860px; margin: 0 auto; }
 header h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; }
-header p { margin-top: 12px; color: #9a9aa4; }
-section { max-width: 860px; margin: 0 auto; padding: 32px 24px; border-top: 1px solid #1b1b20; }
+header p { margin-top: 12px; color: var(--muted); }
+section { max-width: 860px; margin: 0 auto; padding: 32px 24px; border-top: 1px solid var(--border); }
 section h2 { font-size: 1.1rem; margin-bottom: 12px; }
-blockquote { color: #9a9aa4; font-style: italic; }
+blockquote { color: var(--muted); font-style: italic; }
 table { border-collapse: collapse; width: 100%; }
-td, th { border: 1px solid #26262c; padding: 8px 12px; text-align: left; font-size: 14px; }
+td, th { border: 1px solid var(--border); padding: 8px 12px; text-align: left; font-size: 14px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-.grid article { border: 1px solid #26262c; border-radius: 10px; padding: 20px; }
-.cta { display: inline-block; margin-top: 12px; padding: 10px 22px; background: #c3fffc; color: #0b0b0e; text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: .06em; border-radius: 8px; }
-footer { max-width: 860px; margin: 0 auto; padding: 32px 24px; color: #55555e; font-size: 13px; }
+.grid article { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.cta { display: inline-block; margin-top: 12px; padding: 10px 22px; background: var(--accent); color: var(--accent-text); text-decoration: none; font-weight: 700; font-size: 13px; letter-spacing: .06em; border-radius: var(--radius); }
+footer { max-width: 860px; margin: 0 auto; padding: 32px 24px; color: var(--muted); font-size: 13px; }
 
 /* emphasis levels the engine can apply */
-[data-morph-emphasis="subtle"] { outline: 1px solid #c3fffc55; outline-offset: 6px; border-radius: 10px; }
-[data-morph-emphasis="strong"] { outline: 2px solid #c3fffc; outline-offset: 8px; border-radius: 10px; box-shadow: 0 0 40px #c3fffc22; }
+[data-morph-emphasis="subtle"] { outline: 1px solid var(--emphasis); outline-offset: 6px; border-radius: var(--radius); }
+[data-morph-emphasis="strong"] { outline: 2px solid var(--emphasis); outline-offset: 8px; border-radius: var(--radius); box-shadow: 0 0 40px color-mix(in srgb, var(--emphasis) 15%, transparent); }
 
-/* ── consent banner ── */
-#morph-consent { position: fixed; inset: auto 16px 16px 16px; max-width: 520px; margin: 0 auto; background: #141419; border: 1px solid #2e2e36; border-radius: 12px; padding: 18px; z-index: 50; }
+/* ── consent banner (demo chrome, not themed site UI) ── */
+#morph-consent { position: fixed; inset: auto 16px 16px 16px; max-width: 520px; margin: 0 auto; background: #141419; border: 1px solid #2e2e36; border-radius: 12px; padding: 18px; z-index: 50; color: #e8e8ec; }
 #morph-consent p { font-size: 13px; color: #b8b8c0; }
 #morph-consent .row { display: flex; gap: 8px; margin-top: 12px; }
 #morph-consent button { padding: 8px 18px; border-radius: 8px; border: 1px solid #2e2e36; background: none; color: #e8e8ec; cursor: pointer; font-size: 13px; }
 #morph-consent button.yes { background: #c3fffc; color: #0b0b0e; border: none; font-weight: 700; }
 
-/* ── HUD ── */
-#morph-hud { position: fixed; right: 16px; top: 16px; width: 340px; max-height: 80vh; overflow: auto; background: #101014ee; border: 1px solid #2e2e36; border-radius: 12px; font: 11px/1.5 ui-monospace, monospace; z-index: 40; backdrop-filter: blur(6px); }
+/* ── HUD (debug overlay — deliberately outside the theme system) ── */
+#morph-hud { position: fixed; right: 16px; top: 16px; width: 340px; max-height: 86vh; overflow: auto; background: #101014ee; border: 1px solid #2e2e36; border-radius: 12px; font: 11px/1.5 ui-monospace, monospace; z-index: 40; backdrop-filter: blur(6px); color: #e8e8ec; }
 #morph-hud h4 { padding: 10px 14px; border-bottom: 1px solid #26262c; font-size: 11px; letter-spacing: .1em; color: #c3fffc; }
 #morph-hud .block { padding: 10px 14px; border-bottom: 1px solid #1b1b20; }
 #morph-hud .k { color: #71717c; text-transform: uppercase; letter-spacing: .08em; }
@@ -39,3 +81,9 @@ footer { max-width: 860px; margin: 0 auto; padding: 32px 24px; color: #55555e; f
 #morph-hud .log.op-rejected { color: #f38ba8; }
 #morph-hud .log.chain-hit { color: #c3fffc; }
 #morph-hud .log.chain-compiled { color: #f9e2af; }
+
+/* objective estimation bars */
+#morph-hud .obj { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; padding: 2px 0; }
+#morph-hud .obj .bar { grid-column: 1 / -1; height: 4px; background: #1b1b20; border-radius: 2px; overflow: hidden; }
+#morph-hud .obj .bar i { display: block; height: 100%; background: #c3fffc; }
+#morph-hud .path { color: #f9e2af; }

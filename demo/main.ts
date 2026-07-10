@@ -1,14 +1,18 @@
 import { Morph, personaKey, type AuditEvent, type PageManifest, type Persona } from '../src/index.ts'
+import { DEMO_QUANTIZE, derivePath, estimateObjectives, nextRoute, themeFor } from './salesman.ts'
 
-// Demo wiring: two-page store + consent banner + live HUD.
+// Demo wiring: three-page store + consent banner + live HUD.
 // Cold path: real LLM if you point it at one (see README), else a mock model
 // that also emits one FORBIDDEN op ("hide nav") so you can watch the guard
 // reject it in the audit log — the seatbelt, on camera.
+
+const THEME = { id: 'theme', role: 'page design-token theme', variants: ['default', 'tech-savvy', 'gamer'] }
 
 const MANIFESTS: Record<string, PageManifest> = {
   '/index.html': {
     route: '/index.html',
     entries: [
+      THEME,
       { id: 'nav', role: 'site navigation', protected: true },
       { id: 'hero', role: 'landing hero', variants: ['visual', 'technical'] },
       { id: 'cta-hero', role: 'hero call-to-action' },
@@ -21,10 +25,25 @@ const MANIFESTS: Record<string, PageManifest> = {
   '/products.html': {
     route: '/products.html',
     entries: [
+      THEME,
       { id: 'nav', role: 'site navigation', protected: true },
       { id: 'hero', role: 'catalog hero', variants: ['visual', 'technical'] },
       { id: 'product-grid', role: 'product cards with buy CTAs' },
       { id: 'comparison', role: 'side-by-side spec comparison table (hidden by default)' },
+      { id: 'gear-teaser', role: 'accessory cross-sell strip' },
+      { id: 'reviews', role: 'expert reviews' },
+      { id: 'promo-banner', role: 'seasonal discount banner' },
+      { id: 'footer', role: 'footer', protected: true },
+    ],
+  },
+  '/accessories.html': {
+    route: '/accessories.html',
+    entries: [
+      THEME,
+      { id: 'nav', role: 'site navigation', protected: true },
+      { id: 'hero', role: 'gear hero', variants: ['visual', 'technical'] },
+      { id: 'gear-grid', role: 'accessory cards with add CTAs' },
+      { id: 'compat-table', role: 'laptop×accessory compatibility matrix (hidden by default)' },
       { id: 'reviews', role: 'expert reviews' },
       { id: 'promo-banner', role: 'seasonal discount banner' },
       { id: 'footer', role: 'footer', protected: true },
@@ -36,16 +55,21 @@ const MANIFESTS: Record<string, PageManifest> = {
 // protected op so the guard has something to catch.
 async function mockPropose(persona: Persona, manifest: PageManifest): Promise<unknown> {
   await new Promise((r) => setTimeout(r, 300)) // pretend to think
+  const has = (id: string) => manifest.entries.some((e) => e.id === id)
   const ops: unknown[] = [{ op: 'hide', target: 'nav' }] // ← guard bait
-  const technical = persona.traits.includes('reader') || persona.intent === 'compare'
+
+  const theme = themeFor(persona)
+  if (theme !== 'default') ops.push({ op: 'swap-variant', target: 'theme', variant: theme })
+
+  const technical = persona.traits.includes('technical') || persona.traits.includes('reader') || persona.intent === 'compare'
   if (technical) {
     ops.push({ op: 'swap-variant', target: 'hero', variant: 'technical' })
-    if (manifest.entries.some((e) => e.id === 'comparison')) ops.push({ op: 'show', target: 'comparison' })
-    if (manifest.entries.some((e) => e.id === 'specs-teaser')) ops.push({ op: 'emphasize', target: 'specs-teaser', level: 'strong' })
+    if (has('comparison')) ops.push({ op: 'show', target: 'comparison' })
+    if (has('compat-table')) ops.push({ op: 'show', target: 'compat-table' })
+    if (has('specs-teaser')) ops.push({ op: 'emphasize', target: 'specs-teaser', level: 'strong' })
   }
-  if (persona.painPoints.includes('ignored-cta')) ops.push({ op: 'hide', target: 'promo-banner' })
-  if (persona.intent === 'compare' && manifest.entries.some((e) => e.id === 'reviews'))
-    ops.push({ op: 'reorder', target: 'reviews', before: 'promo-banner' })
+  if (persona.traits.includes('gamer') && has('gear-grid')) ops.push({ op: 'emphasize', target: 'gear-grid', level: 'strong' })
+  if (persona.painPoints.includes('ignored-cta') && has('promo-banner')) ops.push({ op: 'hide', target: 'promo-banner' })
   return ops
 }
 
@@ -57,12 +81,16 @@ const auditLog: AuditEvent[] = []
 const morph = new Morph({
   intents: ['browse', 'evaluate', 'compare'],
   budget: 5,
+  quantize: DEMO_QUANTIZE,
   ...(llmRaw ? { llm: JSON.parse(llmRaw) } : { propose: mockPropose }),
   onAudit(e) {
     auditLog.push(e)
     renderHud()
   },
 })
+
+const manifest = MANIFESTS[location.pathname] ?? MANIFESTS['/index.html']!
+const route = manifest.route
 
 // ── consent banner ──
 function mountConsent() {
@@ -84,6 +112,22 @@ function mountConsent() {
   document.body.appendChild(el)
 }
 
+// ── the salesman loop: predict the path, pre-adapt the next page ──
+// Re-runs whenever the live persona or the predicted route changes; precompile
+// itself dedupes against the chain cache, so ticks are cheap. Nothing on THIS
+// page mutates — the compiled chain applies when the next route loads.
+let lastPrediction = ''
+function predictAndPreadapt() {
+  if (!morph.consented) return
+  const p = morph.personaLive()
+  const next = nextRoute(estimateObjectives(p), route)
+  if (!next || !MANIFESTS[next]) return
+  const prediction = `${personaKey(p)}→${next}`
+  if (prediction === lastPrediction) return
+  lastPrediction = prediction
+  void morph.precompile(MANIFESTS[next]!)
+}
+
 // ── HUD ──
 function mountHud() {
   const el = document.createElement('aside')
@@ -95,7 +139,11 @@ function mountHud() {
 function renderHud() {
   const el = document.getElementById('morph-hud')
   if (!el) return
-  const p = morph.persona()
+  const p = morph.consented ? morph.personaLive() : morph.persona()
+  const objectives = estimateObjectives(p)
+  const path = derivePath(objectives, route)
+  const next = path[0]
+  const preadapted = next && auditLog.some((e) => e.kind === 'chain-compiled' && e.detail.includes(next))
   el.innerHTML = `
     <h4>UI-MORPH · LIVE</h4>
     <div class="block">
@@ -104,8 +152,23 @@ function renderHud() {
       <div><span class="k">intent</span> <span class="v">${p.intent}</span></div>
       <div><span class="k">traits</span> <span class="v">${p.traits.join(', ') || '—'}</span></div>
       <div><span class="k">pain</span> <span class="v">${p.painPoints.join(', ') || '—'}</span></div>
+      <div><span class="k">theme</span> <span class="v">${themeFor(p)}</span></div>
       <div><span class="k">key</span> <span class="v">${personaKey(p)}</span></div>
       <div><span class="k">cold path</span> <span class="v">${llmRaw ? 'real LLM' : 'mock model'}</span></div>
+    </div>
+    <div class="block" data-hud="objectives">
+      <div class="k">objectives (estimated)</div>
+      ${objectives
+        .map(
+          (o) => `<div class="obj"><span>${o.id}</span><span class="v">${Math.round(o.p * 100)}%</span>
+            <span class="bar"><i style="width:${Math.round(o.p * 100)}%"></i></span></div>`,
+        )
+        .join('')}
+    </div>
+    <div class="block" data-hud="path">
+      <div class="k">expected path</div>
+      <div class="path">${path.length ? [route, ...path].join(' → ') : `${route} (at goal)`}</div>
+      <div><span class="k">next page</span> <span class="v">${next ? `${next} ${preadapted ? '· pre-adapted ✓' : '· compiling…'}` : '—'}</span></div>
     </div>
     <div class="block">
       ${auditLog.slice(-14).map((e) => `<span class="log ${e.kind}">[${e.kind}] ${e.detail}</span>`).join('')}
@@ -113,8 +176,10 @@ function renderHud() {
     </div>`
 }
 
-const manifest = MANIFESTS[location.pathname] ?? MANIFESTS['/index.html']!
 mountHud()
 mountConsent()
 if (morph.consented) void morph.start(manifest)
-setInterval(renderHud, 2000) // persona evolves with dwell time
+setInterval(() => {
+  renderHud() // persona evolves live with dwell/scroll/clicks
+  predictAndPreadapt()
+}, 2000)
