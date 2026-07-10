@@ -110,18 +110,25 @@ stub) → LLM cold path (OpenAI-compatible; mock injectable) → guard → DOM a
 attribute fallback that expresses token themes) → **pre-adaptation**
 (`Morph.precompile`: compile route B's chain while the visitor is on route A).
 
-Demo: three-page store + consent banner + live HUD showing persona, ranked objective
-probabilities, expected path and pre-adaptation status + audit log. 24 unit tests;
-scripted Playwright walkthrough (`npm run e2e`) with committed screenshot evidence.
-Spec and acceptance criteria: [`specs/demo-spec.md`](../specs/demo-spec.md).
+Demos: the **Carbon store** (primary — IBM Carbon web components, themes as real
+Carbon token sets, and a realtime inspector narrating signals → traits-with-reasons →
+objective score decomposition → path → per-op whys and guard rejections) and the MVP1
+plain-CSS store (legacy/learning, regression-tested). 31 unit tests; scripted
+Playwright walkthroughs (`npm run e2e`) with committed screenshot evidence. Specs:
+[`specs/carbon-demo-spec.md`](../specs/carbon-demo-spec.md),
+[`specs/demo-spec.md`](../specs/demo-spec.md).
 
 ## Delivered from the candidate demo scope (2026-07)
 
 - ✅ Objective estimation with probabilities (deterministic, demo-side — sketch 04's
   `purchase_accessories 87%` scene reproduces literally)
 - ✅ Expected-path derivation + next-page pre-adaptation
-- ✅ Persona-tier UI variations as token themes (`default` / `tech-savvy` / `gamer`)
-- ✅ Scripted, reproducible walkthrough with screenshot evidence (`e2e/evidence/`)
+- ✅ Persona-tier UI variations as token themes (`default` / `tech-savvy` / `gamer`) —
+  now on a real DS: Carbon white / g90 / g100 + custom accent overrides
+- ✅ Scripted, reproducible walkthroughs with screenshot evidence
+  (`e2e/evidence-carbon/`, `e2e/evidence/`)
+- ✅ The reasoning made observable: inspector with signal→trait rules, objective
+  score decomposition and per-op whys (sketch 02's JSON progression, live)
 
 ## What the vision still asks for
 

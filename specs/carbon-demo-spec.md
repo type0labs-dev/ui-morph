@@ -116,3 +116,19 @@ gating and cache economics untouched.
 
 Same as MVP1: unmet criterion ⇒ named gap in this spec, never a weakened
 criterion.
+
+## Status (2026-07-10)
+
+All criteria met (R1–R8 regression + C9a/b + C10a–d) — no gaps. All three
+probes passed before page code (tokens per zone `#ffffff/#262626/#161616`,
+shadow-DOM click retargeting to the `data-morph` host, Lit rendering under the
+fake clock). `npm test` 31/31; `npm run e2e` 5/5 (both suites) across 6
+consecutive runs; evidence committed.
+
+One finding fed back by visual review of the evidence: **Carbon's CSS reset
+sets `display` on elements, and any author rule beats the UA's
+`[hidden] { display: none }`** — which silently disabled the engine's
+hide/show ops on the Carbon pages. Fixed with an explicit `[hidden]`
+reassertion in `demo-carbon/styles.scss` and pinned by an assertion in the
+default-theme test. Integration note for real adopters: a host page's CSS
+reset can defeat `hidden`; the applier's contract assumes it holds.

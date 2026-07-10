@@ -65,19 +65,20 @@ await morph.start({
 })
 ```
 
-## The demo
+## The demos
 
 ```bash
 git clone https://github.com/Type-zero-labs/ui-morph && cd ui-morph
 npm install
-npm run demo   # http://localhost:5173
+npm run demo:carbon   # primary — IBM Carbon store + inspector
+npm run demo          # MVP1 — plain-CSS store + compact HUD (kept as legacy/learning)
 ```
 
-A three-page laptop store (home → laptops → gear) with a live HUD showing the persona forming **as you browse**, objectives estimated with ranked probabilities (`purchase_accessories 87%`), the expected path derived from them, and the **next page being pre-adapted while you are still on this one** — gamer behavior gets the `gamer` token theme on the gear page before ever clicking into it. The mock cold path deliberately emits one forbidden op (`hide nav`) every time — watch the audit log reject it.
+Both are the same three-page laptop store (home → laptops → gear), same engine, same manifests. The **Carbon demo** is the primary one: real design-system components (`@carbon/web-components`) whose themes are genuine Carbon token sets — `default`=white, `tech-savvy`=g90, `gamer`=g100 + purple accent overrides — selected by the engine through the ordinary `swap-variant` op. A docked **inspector** narrates the whole loop in realtime: consented signals streaming, each trait appearing **with the rule that fired it**, objective probabilities decomposed (`base 10 + gamer 60 + technical 10 + evaluate 7 = 87%`), the expected path, the next page pre-adapting while you're still on this one, and every mutation listed with its why — including the mock's deliberate forbidden op (`hide nav`) being rejected by the guard, reason attached.
 
-The whole walkthrough is scripted and reproducible: `npm run e2e` replays it (cold act, then a second session that replays the identical chain with **zero** LLM calls) and drops screenshot evidence in [`e2e/evidence/`](./e2e/evidence/). Spec with acceptance criteria: [`specs/demo-spec.md`](./specs/demo-spec.md).
+Everything is scripted and reproducible: `npm run e2e` replays both walkthroughs (cold act, then a fresh session replaying the identical chain with **zero** LLM calls) and drops screenshot evidence in [`e2e/evidence-carbon/`](./e2e/evidence-carbon/) and [`e2e/evidence/`](./e2e/evidence/). Specs with acceptance criteria: [`specs/carbon-demo-spec.md`](./specs/carbon-demo-spec.md), [`specs/demo-spec.md`](./specs/demo-spec.md).
 
-Point the demo at a real local model with:
+Point either demo at a real local model with:
 
 ```js
 localStorage.setItem('ui-morph:demo:llm', JSON.stringify({
@@ -108,6 +109,8 @@ localStorage.setItem('ui-morph:demo:llm', JSON.stringify({
 - [x] Next-page pre-adaptation (`Morph.precompile` — compile route B's chain while the visitor is on route A)
 - [x] Persona-tier UI variations as design-token themes (`default` / `tech-savvy` / `gamer`), inside the existing op vocabulary
 - [x] Scripted e2e walkthrough with committed screenshot evidence (`npm run e2e`)
+- [x] Store rebuilt on a real design system (IBM Carbon web components; themes = Carbon token sets)
+- [x] Realtime decision inspector: signal→trait rules, objective score decomposition, per-op whys, guard rejections with reasons (`quantizeExplained` in core)
 - [ ] React/Vue store adapters (today: vanilla DOM via `data-morph`)
 - [ ] Similarity matching between persona keys (today: exact match)
 - [ ] Outcome feedback loop (chains that don't help get evicted)
