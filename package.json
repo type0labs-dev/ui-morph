@@ -39,7 +39,9 @@
     "test": "node --test --experimental-strip-types test/*.test.ts",
     "e2e": "playwright test --project mvp1 --project carbon",
     "e2e:live": "LIVE_LLM=1 playwright test --project live",
-    "sim": "node scripts/simulate.mjs"
+    "sim": "node scripts/simulate.mjs",
+    "demo:carbon:build": "vite build demo-carbon",
+    "demo:carbon:preview": "vite preview demo-carbon --port 5197"
   },
   "dependencies": {
     "zod": "^3.24.0"

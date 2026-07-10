@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gear — NOVA · ui-morph × Carbon</title>
+  <style>/* FOUC guard: paint only when the real stylesheet lands (styles.scss lifts it); if assets ever fail, reveal raw HTML after 2.5s */html{opacity:0;animation:um-reveal 0s 2.5s forwards}@keyframes um-reveal{to{opacity:1}}</style>
 </head>
 <body>
   <div data-morph="theme" hidden></div>

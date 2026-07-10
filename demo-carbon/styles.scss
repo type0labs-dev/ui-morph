@@ -5,6 +5,12 @@
 @use '@carbon/styles/scss/themes';
 @use '@carbon/styles/scss/type';
 
+/* lift the inline FOUC guard the moment the real stylesheet is live */
+html {
+  opacity: 1 !important;
+  animation: none !important;
+}
+
 body {
   @include theme.theme(themes.$white);
 }
