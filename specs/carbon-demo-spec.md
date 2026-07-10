@@ -224,6 +224,18 @@ Criteria:
 `ChainStore.list()` is optional: stores without it (e.g. the remote stub) skip
 the fallback — documented, not silent.
 
+## Status — C18 (2026-07-10)
+
+All four criteria met; suites 7/7 ×3 (mock), live 1/1, unit 48/48. Session E
+re-run with the live model: the revisit now applies 6 ops via
+`similar (0.78 ≈ narrow|browse|search-led+technical|-)` — before C18 that
+session never applied anything. One additional finding while validating C18d:
+a navigation-aborted fetch REJECTS during teardown, so clearing the in-flight
+mark in `finally` erased the interruption evidence itself (measured ~100ms
+into navigation); marks now clear on success only and the next page reports
+the loss. Metric calibration and its weights are documented in
+`src/similarity.ts`; the treadmill regression test pins the behavior.
+
 ## Status — C17, live cold path (2026-07-10)
 
 C17a/b/c met. Live evidence committed (`live-coldpath.png`: quantized persona

@@ -122,8 +122,8 @@ localStorage.setItem('ui-morph:demo:llm', JSON.stringify({
 - [x] Scripted e2e walkthrough with committed screenshot evidence (`npm run e2e`)
 - [x] Store rebuilt on a real design system (IBM Carbon web components; themes = Carbon token sets)
 - [x] Realtime decision inspector: signal→trait rules, objective score decomposition, per-op whys, guard rejections with reasons (`quantizeExplained` in core)
+- [x] Similarity matching between persona keys — deterministic read-fallback: on an exact miss, the nearest cached persona's chain applies (audited with its score) while the exact chain compiles; kills the early-session "persona treadmill"
 - [ ] React/Vue store adapters (today: vanilla DOM via `data-morph`)
-- [ ] Similarity matching between persona keys (today: exact match)
 - [ ] Outcome feedback loop (chains that don't help get evicted)
 
 MIT © [Type Zero Labs](https://github.com/Type-zero-labs)
