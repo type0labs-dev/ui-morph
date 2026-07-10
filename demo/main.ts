@@ -78,6 +78,7 @@ async function mockPropose(persona: Persona, manifest: PageManifest): Promise<un
 const llmRaw = localStorage.getItem('ui-morph:demo:llm')
 
 const auditLog: AuditEvent[] = []
+Object.assign(window, { __audit: auditLog }) // e2e walkthrough reads the trail here
 const morph = new Morph({
   intents: ['browse', 'evaluate', 'compare'],
   budget: 5,
@@ -143,7 +144,8 @@ function renderHud() {
   const objectives = estimateObjectives(p)
   const path = derivePath(objectives, route)
   const next = path[0]
-  const preadapted = next && auditLog.some((e) => e.kind === 'chain-compiled' && e.detail.includes(next))
+  const preadapted =
+    next && auditLog.some((e) => (e.kind === 'chain-compiled' || e.kind === 'chain-hit') && e.detail.includes(next))
   el.innerHTML = `
     <h4>UI-MORPH · LIVE</h4>
     <div class="block">
