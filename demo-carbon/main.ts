@@ -73,17 +73,22 @@ function mountConsent() {
   document.body.appendChild(el)
 }
 
-// ── the salesman loop: predict the path, pre-adapt the next page ──
+// ── the salesman loop: predict the path, pre-adapt the likely pages ──
+// Fan-out (C18b): top-2 objective routes + this route's own next-visit chain,
+// in parallel. precompile dedupes exact keys; cost with a live model is up to
+// ~3 calls per persona change — visible in the inspector's cold path.
 let lastPrediction = ''
 function predictAndPreadapt() {
   if (!morph.consented) return
   const p = morph.personaLive()
-  const next = nextRoute(estimateObjectives(p), route)
-  if (!next || !MANIFESTS[next]) return
-  const prediction = `${personaKey(p)}→${next}`
+  const ranked = estimateObjectives(p)
+  const targets = [...new Set([nextRoute(ranked, route), nextRoute(ranked.slice(1), route), route])].filter(
+    (r): r is string => !!r && !!MANIFESTS[r],
+  )
+  const prediction = `${personaKey(p)}→${targets.join(',')}`
   if (prediction === lastPrediction) return
   lastPrediction = prediction
-  void morph.precompile(MANIFESTS[next]!)
+  for (const r of targets) void morph.precompile(MANIFESTS[r]!)
 }
 
 ingestSearchFromUrl() // ad-landing ?utm_term → site-owned first-party store

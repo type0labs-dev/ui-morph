@@ -1,7 +1,7 @@
 import { quantizeExplained, type AuditEvent, type Morph } from '../src/index.ts'
-import { DEMO_QUANTIZE, derivePath, estimateObjectivesExplained, explainSiteTraits, providedProfile, searchTerms, themeFor } from '../demo/salesman.ts'
+import { DEMO_QUANTIZE, derivePath, estimateObjectivesExplained, explainSiteTraits, providedProfile, searchTerms, themeFor, unmappedSearchTerms } from '../demo/salesman.ts'
 import { whyFor } from './propose.ts'
-import type { ColdPathExchange } from './llm-live.ts'
+import { interruptedCompiles, type ColdPathExchange } from './llm-live.ts'
 
 // The inspector: the salesman's reasoning, narrated live. Everything shown is
 // demo-side data (raw consented signals, deterministic rule traces, cold-path
@@ -136,6 +136,12 @@ export function mountInspector(ctx: InspectorCtx): () => void {
         <h5>1b · search & provided <span class="dim">(site-owned, first-party)</span></h5>
         <div class="kv"><span>search terms</span><b>${esc(searchTerms()) || '—'}</b></div>
         ${(() => {
+          const lost = unmappedSearchTerms()
+          return lost.length
+            ? `<div class="warn" data-insp="unmapped">unmapped — lost evidence: ${lost.map(esc).join(', ')} <span class="dim">(no site rule consumes these)</span></div>`
+            : ''
+        })()}
+        ${(() => {
           const profile = providedProfile()
           return profile
             ? `<div class="kv"><span>PROVIDED adapter</span><b>${esc(profile.name ?? '?')} · ${esc(profile.ageRange ?? '?')} · prefs: ${esc((profile.prefs ?? []).join(', '))} · history: ${esc((profile.history ?? []).join(', '))}</b></div>
@@ -181,6 +187,9 @@ export function mountInspector(ctx: InspectorCtx): () => void {
       <section data-insp="coldpath">
         <h5>4b · cold path <span class="dim">(who proposes the ops)</span></h5>
         <div class="kv"><span>source</span><b>${esc(ctx.coldPath)}</b></div>
+        ${interruptedCompiles()
+          .map((i) => `<div class="warn">⚠ compile for ${esc(i.route)} (${esc(i.model)}) interrupted by navigation — retries when predicted again</div>`)
+          .join('')}
         ${
           !ctx.live
             ? '<div class="dim">deterministic mock — authored rules, reproducible. switch to a live model in settings ↓</div>'

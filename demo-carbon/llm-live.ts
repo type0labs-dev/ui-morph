@@ -24,6 +24,43 @@ export function coldPathExchanges(): ColdPathExchange[] {
   return exchanges
 }
 
+// ── interrupted-compile detection (C18d) ─────────────────────────────────────
+// A fetch dies with its page. Calls mark themselves in sessionStorage and
+// unmark on resolve — whatever is still marked when the NEXT page loads was
+// killed by navigation, and the inspector says so instead of staying silent.
+
+const INFLIGHT_KEY = 'nova:coldpath-inflight'
+
+type InflightMap = Record<string, { model: string; at: number }>
+
+function readInflight(): InflightMap {
+  try {
+    return JSON.parse(sessionStorage.getItem(INFLIGHT_KEY) ?? '{}') as InflightMap
+  } catch {
+    return {}
+  }
+}
+
+// captured once at page load, then cleared: these died with the previous page
+const interrupted = Object.entries(readInflight()).map(([route, v]) => ({ route, model: v.model }))
+sessionStorage.removeItem(INFLIGHT_KEY)
+
+export function interruptedCompiles(): { route: string; model: string }[] {
+  return interrupted
+}
+
+function mark(route: string, model: string): void {
+  const m = readInflight()
+  m[route] = { model, at: Date.now() }
+  sessionStorage.setItem(INFLIGHT_KEY, JSON.stringify(m))
+}
+
+function unmark(route: string): void {
+  const m = readInflight()
+  delete m[route]
+  sessionStorage.setItem(INFLIGHT_KEY, JSON.stringify(m))
+}
+
 export function livePropose(cfg: LlmConfig) {
   return async (persona: Persona, manifest: PageManifest): Promise<unknown> => {
     const entry: ColdPathExchange = {
@@ -34,6 +71,7 @@ export function livePropose(cfg: LlmConfig) {
       manifestEntries: manifest.entries.length,
     }
     exchanges.push(entry)
+    mark(manifest.route, cfg.model)
     try {
       const ops = await proposeChainOps(persona, manifest, cfg)
       entry.returned = ops
@@ -41,6 +79,8 @@ export function livePropose(cfg: LlmConfig) {
     } catch (e) {
       entry.error = String(e)
       throw e
+    } finally {
+      unmark(manifest.route)
     }
   }
 }
