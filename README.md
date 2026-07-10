@@ -70,9 +70,12 @@ await morph.start({
 ```bash
 git clone https://github.com/Type-zero-labs/ui-morph && cd ui-morph
 npm install
-npm run demo:carbon   # primary — IBM Carbon store + inspector
-npm run demo          # MVP1 — plain-CSS store + compact HUD (kept as legacy/learning)
+npm run demo:carbon           # primary — IBM Carbon store + inspector (dev)
+npm run demo:carbon:build && npm run demo:carbon:preview   # production build — zero style flash, best for presenting
+npm run demo                  # MVP1 — plain-CSS store + compact HUD (kept as legacy/learning)
 ```
+
+Start at `/entry.html` (the mock "outside world" page) for the full story. The inspector's settings panel has **⟲ reset demo** — wipes the visitor (consent, chains, cart, searches, session log) and starts you over as a brand-new visitor; the model settings stay. A captured tour of what five contrasting personas each see on the same store lives in [`docs/persona-showcase.md`](./docs/persona-showcase.md); the project retrospective in [`docs/POST-MORTEM.md`](./docs/POST-MORTEM.md).
 
 Both are the same three-page laptop store (home → laptops → gear), same engine. The **Carbon demo (NOVA 3.0)** is the primary one, at enterprise-retailer density — Carbon UI Shell header, photo hero, deals strip, category tiles, six photographed laptops and six gear items, tech-articles section, newsletter band, 4-column footer (free-license photos, credited in `demo-carbon/img/CREDITS.md`; original NOVA content throughout — no real retailer's site, copy or imagery is reproduced). Components are real Carbon custom elements (`@carbon/web-components`) and the themes are genuine Carbon token sets — `default`=white, `tech-savvy`=g90, `gamer`=g100 + purple accent overrides — selected by the engine through the ordinary `swap-variant` op. A technical persona even flips the content pattern on camera: the articles section reorders above the testimonials (sketch 02's `technical > social proof`).
 

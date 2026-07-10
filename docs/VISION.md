@@ -118,6 +118,18 @@ Playwright walkthroughs (`npm run e2e`) with committed screenshot evidence. Spec
 [`specs/carbon-demo-spec.md`](../specs/carbon-demo-spec.md),
 [`specs/demo-spec.md`](../specs/demo-spec.md).
 
+## Where it landed (2026-07-10)
+
+The Carbon demo grew into a complete e-commerce funnel (external entry page →
+home → listings → per-product detail → cart → checkout → payment →
+confirmation) with a 12-product catalog, a realtime inspector that narrates
+every decision with its reason, a live cold path (any OpenAI-compatible
+model, exchange on camera), similarity matching between persona keys (core),
+a per-session structured log, and a seed-deterministic persona laboratory
+(`npm run sim`). The five-op vocabulary from the POC survived every scenario
+unchanged. Full retrospective: [`POST-MORTEM.md`](./POST-MORTEM.md); captured
+persona tour: [`persona-showcase.md`](./persona-showcase.md).
+
 ## Delivered from the candidate demo scope (2026-07)
 
 - ✅ Objective estimation with probabilities (deterministic, demo-side — sketch 04's
