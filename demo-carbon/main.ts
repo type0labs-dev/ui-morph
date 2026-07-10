@@ -31,7 +31,7 @@ try {
 }
 
 const auditLog: AuditEvent[] = []
-Object.assign(window, { __audit: auditLog }) // e2e walkthrough reads the trail here
+Object.assign(window, { __audit: auditLog, __coldpath: coldPathExchanges() }) // e2e reads these
 
 let renderInspector: () => void = () => {}
 

@@ -37,7 +37,8 @@
     "demo:carbon": "vite demo-carbon",
     "demo:build": "vite build demo",
     "test": "node --test --experimental-strip-types test/*.test.ts",
-    "e2e": "playwright test"
+    "e2e": "playwright test --project mvp1 --project carbon",
+    "e2e:live": "LIVE_LLM=1 playwright test --project live"
   },
   "dependencies": {
     "zod": "^3.24.0"
