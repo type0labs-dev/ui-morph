@@ -38,6 +38,14 @@ export function providedProfile(): ProvidedProfile | null {
 const THIN = /fino|slim|thin/i
 const WHITE = /branco|white/i
 const GIFT = /presente|gift/i
+const PRICE = /barato|cheap|budget|promo|deal|desconto|oferta/i
+const TERM_RULES = [THIN, WHITE, GIFT, PRICE]
+
+/** Search tokens no rule consumed — lost evidence, surfaced instead of silent. */
+export function unmappedSearchTerms(): string[] {
+  const tokens = searchTerms().toLowerCase().split(/\s+/).filter(Boolean)
+  return [...new Set(tokens.filter((t) => !TERM_RULES.some((r) => r.test(t))))]
+}
 
 export interface RankedObjective {
   id: string
@@ -61,6 +69,11 @@ interface ScorePart {
 }
 const always = () => true
 const SCORING: Record<string, ScorePart[]> = {
+  hunt_deals: [
+    { label: 'base rate', points: 8, when: always },
+    { label: 'price-aware trait', points: 45, when: (p) => has(p, 'price-aware') },
+    { label: 'search-led trait', points: 5, when: (p) => has(p, 'search-led') },
+  ],
   buy_gift_laptop: [
     { label: 'base rate', points: 5, when: always },
     { label: 'gift-buyer trait', points: 40, when: (p) => has(p, 'gift-buyer') },
@@ -107,6 +120,7 @@ export function estimateObjectives(persona: Persona): RankedObjective[] {
 
 // expected page sequence per objective — the demo site's map, home → goal
 const PATHS: Record<string, string[]> = {
+  hunt_deals: ['/index.html', '/products.html'],
   buy_gift_laptop: ['/index.html', '/products.html', '/product.html'],
   purchase_accessories: ['/index.html', '/products.html', '/accessories.html'],
   compare_specs: ['/index.html', '/products.html'],
@@ -148,6 +162,7 @@ export const DEMO_QUANTIZE: QuantizeRules = {
     if (THIN.test(terms)) traits.add('thin-focus')
     if (WHITE.test(terms)) traits.add('color-white')
     if (GIFT.test(terms)) traits.add('gift-buyer')
+    if (PRICE.test(terms)) traits.add('price-aware')
     const provided = providedProfile()
     if (provided?.prefs?.includes('large-text')) traits.add('comfort')
     if (provided?.history?.includes('gifts')) traits.add('gift-buyer')
@@ -167,6 +182,7 @@ export function explainSiteTraits(history: Signals[]): string[] {
   if (THIN.test(terms)) because.push(`trait thin-focus: searched "${terms}"`)
   if (WHITE.test(terms)) because.push(`trait color-white: searched "${terms}"`)
   if (GIFT.test(terms)) because.push(`trait gift-buyer: searched "${terms}"`)
+  if (PRICE.test(terms)) because.push(`trait price-aware: searched "${terms}"`)
   const provided = providedProfile()
   if (provided?.prefs?.includes('large-text')) because.push(`trait comfort: PROVIDED adapter — prefers larger text`)
   if (provided?.history?.includes('gifts')) because.push(`trait gift-buyer: PROVIDED adapter — gift purchase history`)

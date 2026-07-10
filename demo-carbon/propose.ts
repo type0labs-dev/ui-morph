@@ -38,6 +38,8 @@ function decide(persona: Persona, manifest: PageManifest): ProposedOp[] {
       out.push({ op: { op: 'swap-variant', target: 'color-picker', variant: 'white' }, why: 'searched "branco" — preselect white' })
     if (has('cta-buy')) out.push({ op: { op: 'emphasize', target: 'cta-buy', level: 'strong' }, why: 'one obvious next step, no hunting' })
   }
+  if (persona.traits.includes('price-aware') && has('deals-strip'))
+    out.push({ op: { op: 'emphasize', target: 'deals-strip', level: 'strong' }, why: 'price-aware search → deals front and center' })
   if (nonTechnical) {
     if (has('specs-detail')) out.push({ op: { op: 'swap-variant', target: 'specs-detail', variant: 'collapsed' }, why: 'specs are noise for this persona — fold them away' })
     if (has('articles-teaser')) out.push({ op: { op: 'hide', target: 'articles-teaser' }, why: 'benchmark articles do not help a gift buyer' })

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { estimateObjectives, estimateObjectivesExplained, explainSiteTraits, derivePath, nextRoute, themeFor, DEMO_QUANTIZE } from '../demo/salesman.ts'
+import { estimateObjectives, estimateObjectivesExplained, explainSiteTraits, derivePath, nextRoute, themeFor, unmappedSearchTerms, DEMO_QUANTIZE } from '../demo/salesman.ts'
 import type { Persona, Signals } from '../src/types.ts'
 
 // Site-side salesman logic: deterministic objective estimation, path
@@ -162,4 +162,35 @@ test('themeFor: comfort below gamer, above tech-savvy', () => {
   assert.equal(themeFor(marta), 'comfort')
   assert.equal(themeFor({ ...marta, traits: [...marta.traits, 'gamer'] }), 'gamer')
   assert.equal(themeFor({ ...marta, traits: ['comfort', 'technical'] }), 'comfort')
+})
+
+// ── C18c: price vocabulary + unmapped terms visible ──
+
+test('price search terms become price-aware, PT and EN', () => {
+  globalThis.sessionStorage = storageShim()
+  globalThis.localStorage = storageShim()
+  sessionStorage.setItem('nova:search-terms', 'notebook barato promoção')
+  assert.ok(DEMO_QUANTIZE.traitsOf!([sig({})]).includes('price-aware'))
+  assert.ok(explainSiteTraits([sig({})]).some((b) => b.includes('price-aware') && b.includes('barato')))
+  sessionStorage.setItem('nova:search-terms', 'cheap laptop deal')
+  assert.ok(DEMO_QUANTIZE.traitsOf!([sig({})]).includes('price-aware'))
+})
+
+test('deal hunter: hunt_deals tops the ranking and paths to the catalog', () => {
+  const hunter: Persona = { tier: 'narrow', intent: 'browse', traits: ['price-aware', 'search-led'], painPoints: [] }
+  const ranked = estimateObjectivesExplained(hunter)
+  assert.equal(ranked[0]!.id, 'hunt_deals')
+  assert.ok(ranked[0]!.parts.some((x) => x.label.includes('price')))
+  assert.equal(nextRoute(estimateObjectives(hunter), '/index.html'), '/products.html')
+})
+
+test('unmappedSearchTerms names the tokens no rule consumed', () => {
+  globalThis.sessionStorage = storageShim()
+  globalThis.localStorage = storageShim()
+  sessionStorage.setItem('nova:search-terms', 'notebook barato promoção')
+  assert.deepEqual(unmappedSearchTerms(), ['notebook'])
+  sessionStorage.setItem('nova:search-terms', 'laptop fino branco')
+  assert.deepEqual(unmappedSearchTerms(), ['laptop'])
+  sessionStorage.setItem('nova:search-terms', '')
+  assert.deepEqual(unmappedSearchTerms(), [])
 })
