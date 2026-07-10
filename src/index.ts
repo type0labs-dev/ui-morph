@@ -26,8 +26,13 @@ const HISTORY_KEY = 'ui-morph:signals'
 export class Morph {
   private collector: SignalCollector | null = null
   private manifest: PageManifest | null = null
+  private cfg: MorphConfig
 
-  constructor(private cfg: MorphConfig) {}
+  // no parameter property: node --experimental-strip-types (the test runner)
+  // only accepts erasable TS syntax
+  constructor(cfg: MorphConfig) {
+    this.cfg = cfg
+  }
 
   get consented(): boolean {
     return localStorage.getItem(CONSENT_KEY) === 'yes'
@@ -46,6 +51,29 @@ export class Morph {
 
   persona(): Persona {
     return quantize(this.history())
+  }
+
+  /**
+   * Persona including the page currently being observed — history alone only
+   * updates on pagehide, which would freeze the HUD and starve prediction.
+   */
+  personaLive(): Persona {
+    const history = this.history()
+    return quantize(this.collector ? [...history, this.collector.snapshot()] : history)
+  }
+
+  /**
+   * Pre-adaptation: compile & cache a chain for ANOTHER route with the current
+   * persona, while this page is still alive. Nothing on screen changes — the
+   * chain applies when that route loads (mutations stay at page boundaries).
+   */
+  async precompile(manifest: PageManifest): Promise<void> {
+    if (!this.consented) return
+    const p = this.personaLive()
+    const store = this.cfg.store ?? localStore()
+    const key = chainKey(personaKey(p), manifest.route, manifestHash(manifest))
+    if (await store.get(key)) return
+    await this.compile(p, manifest, store, key)
   }
 
   async start(manifest: PageManifest): Promise<void> {
@@ -99,7 +127,7 @@ export class Morph {
         createdAt: Date.now(),
       }
       await store.put(key, chain)
-      this.audit('chain-compiled', `${accepted.length} ops accepted, ${rejected.length} rejected — applies next visit`)
+      this.audit('chain-compiled', `${manifest.route}: ${accepted.length} ops accepted, ${rejected.length} rejected — applies next visit`)
     } catch (e) {
       this.audit('op-rejected', `cold path failed: ${String(e)}`)
     }
