@@ -21,8 +21,27 @@ function decide(persona: Persona, manifest: PageManifest): ProposedOp[] {
 
   const theme = themeFor(persona)
   if (theme === 'gamer') out.push({ op: { op: 'swap-variant', target: 'theme', variant: 'gamer' }, why: 'gamer trait → g100 tokens + purple accents' })
+  else if (theme === 'comfort')
+    out.push({ op: { op: 'swap-variant', target: 'theme', variant: 'comfort' }, why: 'comfort trait → larger type, stronger contrast' })
   else if (theme === 'tech-savvy')
     out.push({ op: { op: 'swap-variant', target: 'theme', variant: 'tech-savvy' }, why: 'technical/reader trait → g90 tokens, data-first' })
+
+  // act 2 — the gift buyer who searched "thin, white"
+  const giftish = persona.traits.includes('gift-buyer') || persona.traits.includes('thin-focus') || persona.traits.includes('color-white')
+  const nonTechnical = giftish && !persona.traits.includes('technical') && !persona.traits.includes('reader')
+  if (giftish) {
+    if (has('card-13-air')) out.push({ op: { op: 'emphasize', target: 'card-13-air', level: 'strong' }, why: 'thinnest white model — exactly what she searched for' })
+    if (has('gallery') && has('specs-detail'))
+      out.push({ op: { op: 'reorder', target: 'gallery', before: 'specs-detail' }, why: 'she buys with her eyes — images before data' })
+    if (has('size-compare')) out.push({ op: { op: 'show', target: 'size-compare' }, why: 'searched "fino" — show how thin, against everyday objects' })
+    if (persona.traits.includes('color-white') && has('color-picker'))
+      out.push({ op: { op: 'swap-variant', target: 'color-picker', variant: 'white' }, why: 'searched "branco" — preselect white' })
+    if (has('cta-buy')) out.push({ op: { op: 'emphasize', target: 'cta-buy', level: 'strong' }, why: 'one obvious next step, no hunting' })
+  }
+  if (nonTechnical) {
+    if (has('specs-detail')) out.push({ op: { op: 'swap-variant', target: 'specs-detail', variant: 'collapsed' }, why: 'specs are noise for this persona — fold them away' })
+    if (has('articles-teaser')) out.push({ op: { op: 'hide', target: 'articles-teaser' }, why: 'benchmark articles do not help a gift buyer' })
+  }
 
   const technical = persona.traits.includes('technical') || persona.traits.includes('reader') || persona.intent === 'compare'
   if (technical) {

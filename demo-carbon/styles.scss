@@ -26,6 +26,33 @@ body:has([data-morph='theme'][data-morph-variant-active='gamer']) {
   --cds-focus: #a78bfa;
 }
 
+/* comfort — Carbon g10 base with a larger, higher-contrast reading scale:
+   accessibility as a design-system variant, chosen by the same swap-variant */
+body:has([data-morph='theme'][data-morph-variant-active='comfort']) {
+  @include theme.theme(themes.$g10);
+  --cds-text-secondary: #33333d;
+  --cds-text-helper: #44444e;
+
+  p,
+  blockquote,
+  .dims span,
+  cds-structured-list {
+    font-size: 1.16em;
+    line-height: 1.7;
+  }
+  .section h2 {
+    font-size: 1.45rem;
+  }
+  .hero h1,
+  .overview h1 {
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+  }
+  [data-morph='cta-buy'] {
+    transform: scale(1.15);
+    transform-origin: left top;
+  }
+}
+
 /* ── store chrome, all on Carbon tokens ── */
 body {
   background: var(--cds-background);
@@ -420,3 +447,127 @@ body {
 #morph-inspector .log.op-rejected { color: #f38ba8; }
 #morph-inspector .log.chain-hit { color: #c3fffc; }
 #morph-inspector .log.chain-compiled { color: #f9e2af; }
+
+/* ── in-store search (slotted into the UI Shell header) ── */
+.nova-search {
+  margin-left: auto;
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+}
+.nova-search input {
+  width: 220px;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid var(--cds-border-subtle-01);
+  background: var(--cds-field-01);
+  color: var(--cds-text-primary);
+}
+
+/* ── simulated PROVIDED sign-in (demo chrome) ── */
+#nova-signin {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 45;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: #141419;
+  border: 1px solid #2e2e36;
+  color: #e8e8ec;
+  font: 12px/1.4 ui-monospace, monospace;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+#nova-signin button {
+  background: #c3fffc;
+  color: #0b0b0e;
+  border: none;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+/* ── product detail page ── */
+.overview .crumb {
+  font-size: 13px;
+  color: var(--cds-text-helper);
+  margin-bottom: 12px;
+}
+.overview .crumb a {
+  color: var(--cds-link-primary);
+}
+.overview h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+}
+.overview .pitch {
+  margin-top: 10px;
+  color: var(--cds-text-secondary);
+  max-width: 34em;
+}
+.overview .price {
+  margin: 12px 0 16px;
+  font-size: 1.1rem;
+}
+.overview cds-button {
+  display: inline-block;
+  margin-top: 16px;
+}
+
+.color-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.color-picker .k {
+  color: var(--cds-text-secondary);
+  font-size: 13px;
+  margin-right: 4px;
+}
+.color-picker .chip {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--cds-border-strong-01);
+  cursor: pointer;
+  padding: 0;
+}
+.color-picker .chip[data-color='silver'] { background: #c9ccd1; }
+.color-picker .chip[data-color='white'] { background: #f6f6f4; }
+.color-picker .chip[data-color='black'] { background: #1d1d21; }
+/* engine-selected color: ring on the matching chip (attribute-mode variant) */
+.color-picker:not([data-morph-variant-active]) .chip[data-color='silver'],
+.color-picker[data-morph-variant-active='silver'] .chip[data-color='silver'],
+.color-picker[data-morph-variant-active='white'] .chip[data-color='white'],
+.color-picker[data-morph-variant-active='black'] .chip[data-color='black'] {
+  outline: 3px solid var(--cds-interactive, #0f62fe);
+  outline-offset: 3px;
+}
+
+.dims {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  color: var(--cds-text-secondary);
+}
+.dims b {
+  color: var(--cds-text-primary);
+  font-size: 1.25em;
+}
+
+.gallery .grid img {
+  aspect-ratio: 4 / 3;
+}
+.size-svg {
+  width: 100%;
+  max-width: 640px;
+  color: var(--cds-text-secondary);
+}
+.card-link {
+  text-decoration: none;
+  color: inherit;
+}

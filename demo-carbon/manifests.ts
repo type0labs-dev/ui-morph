@@ -6,7 +6,7 @@ import type { PageManifest } from '../src/index.ts'
 // Same three routes, so the salesman module (objectives/paths/themes) is
 // untouched.
 
-const THEME = { id: 'theme', role: 'page design-token theme', variants: ['default', 'tech-savvy', 'gamer'] }
+const THEME = { id: 'theme', role: 'page design-token theme', variants: ['default', 'tech-savvy', 'gamer', 'comfort'] }
 const NAV = { id: 'nav', role: 'site navigation header (Carbon UI Shell)', protected: true }
 const FOOTER = { id: 'footer', role: 'footer columns', protected: true }
 const PROMO = { id: 'promo-banner', role: 'seasonal discount banner' }
@@ -40,10 +40,29 @@ export const MANIFESTS: Record<string, PageManifest> = {
       { id: 'hero', role: 'catalog hero', variants: ['visual', 'technical'] },
       { id: 'deals-strip', role: 'deals of the week strip' },
       { id: 'product-grid', role: 'laptop cards with photos and buy CTAs' },
+      { id: 'card-13-air', role: 'NOVA 13 Air card — thinnest model, comes in white' },
       { id: 'comparison', role: 'side-by-side spec comparison table (hidden by default)' },
       { id: 'gear-teaser', role: 'accessory cross-sell strip' },
       { id: 'testimonials', role: 'social proof quotes' },
       ARTICLES,
+      NEWSLETTER,
+      PROMO,
+      FOOTER,
+    ],
+  },
+  '/product.html': {
+    route: '/product.html',
+    entries: [
+      THEME,
+      NAV,
+      { id: 'overview', role: 'product title, price and short pitch' },
+      { id: 'color-picker', role: 'color selection', variants: ['silver', 'white', 'black'] },
+      { id: 'cta-buy', role: 'primary buy button' },
+      { id: 'dimensions', role: 'thinness / weight highlight strip' },
+      { id: 'gallery', role: 'product photo gallery' },
+      { id: 'size-compare', role: 'physical size comparison vs everyday objects (hidden by default)' },
+      { id: 'specs-detail', role: 'full technical specifications', variants: ['expanded', 'collapsed'] },
+      { id: 'reviews', role: 'expert reviews' },
       NEWSLETTER,
       PROMO,
       FOOTER,
