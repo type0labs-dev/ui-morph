@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { estimateObjectives, derivePath, nextRoute, themeFor, DEMO_QUANTIZE } from '../demo/salesman.ts'
+import { estimateObjectives, estimateObjectivesExplained, explainSiteTraits, derivePath, nextRoute, themeFor, DEMO_QUANTIZE } from '../demo/salesman.ts'
 import type { Persona, Signals } from '../src/types.ts'
 
 // Site-side salesman logic: deterministic objective estimation, path
@@ -65,4 +65,28 @@ test('DEMO_QUANTIZE.traitsOf: gear clicks read as gamer, spec clicks as technica
   assert.ok(traits.includes('gamer'))
   assert.ok(traits.includes('technical'))
   assert.deepEqual(DEMO_QUANTIZE.traitsOf!([sig({})]), [])
+})
+
+test('estimateObjectivesExplained: probability decomposes into labeled parts', () => {
+  const ranked = estimateObjectivesExplained(gamer)
+  const top = ranked[0]!
+  assert.equal(top.id, 'purchase_accessories')
+  const sum = top.parts.reduce((s, x) => s + x.points, 0)
+  assert.equal(Math.min(95, Math.max(1, sum)) / 100, top.p, 'parts sum to the displayed probability')
+  assert.ok(top.parts.some((x) => x.label.includes('gamer') && x.points === 60))
+  assert.ok(top.parts.some((x) => /base/.test(x.label)))
+})
+
+test('estimateObjectives stays a thin wrapper over the explained version', () => {
+  assert.deepEqual(
+    estimateObjectives(gamer),
+    estimateObjectivesExplained(gamer).map(({ id, p }) => ({ id, p })),
+  )
+})
+
+test('explainSiteTraits names the clicks behind each site trait', () => {
+  const because = explainSiteTraits([sig({ clicked: ['gear-headset', 'comparison'] })])
+  assert.ok(because.some((b) => b.includes('gamer') && b.includes('gear-headset')))
+  assert.ok(because.some((b) => b.includes('technical') && b.includes('comparison')))
+  assert.deepEqual(explainSiteTraits([sig({})]), [])
 })
