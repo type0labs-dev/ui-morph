@@ -13,6 +13,37 @@ const PROMO = { id: 'promo-banner', role: 'seasonal discount banner' }
 const NEWSLETTER = { id: 'newsletter', role: 'newsletter subscription band' }
 const ARTICLES = { id: 'articles-teaser', role: 'technical articles (benchmarks, teardowns)' }
 
+/** One manifest shape for every product — chains keyed per sku via the route. */
+export function productManifest(sku: string): PageManifest {
+  return {
+    route: `/product.html?sku=${sku}`,
+    entries: [
+      THEME,
+      NAV,
+      { id: 'overview', role: 'product title, price and short pitch' },
+      { id: 'color-picker', role: 'color selection', variants: ['silver', 'white', 'black'] },
+      { id: 'cta-buy', role: 'primary buy button' },
+      { id: 'dimensions', role: 'headline specs highlight strip' },
+      { id: 'gallery', role: 'product photo gallery' },
+      { id: 'size-compare', role: 'physical size comparison vs everyday objects (hidden by default)' },
+      { id: 'specs-detail', role: 'full technical specifications', variants: ['expanded', 'collapsed'] },
+      { id: 'reviews', role: 'expert reviews' },
+      NEWSLETTER,
+      PROMO,
+      FOOTER,
+    ],
+  }
+}
+
+/** Resolve the manifest for any store URL (funnel pages + parameterized detail). */
+export function manifestFor(pathname: string, search: string): PageManifest {
+  if (pathname === '/product.html') {
+    const sku = new URLSearchParams(search).get('sku') ?? 'nova-13-air'
+    return productManifest(sku)
+  }
+  return MANIFESTS[pathname] ?? MANIFESTS['/index.html']!
+}
+
 export const MANIFESTS: Record<string, PageManifest> = {
   '/index.html': {
     route: '/index.html',
@@ -50,21 +81,48 @@ export const MANIFESTS: Record<string, PageManifest> = {
       FOOTER,
     ],
   },
-  '/product.html': {
-    route: '/product.html',
+  '/cart.html': {
+    route: '/cart.html',
     entries: [
       THEME,
       NAV,
-      { id: 'overview', role: 'product title, price and short pitch' },
-      { id: 'color-picker', role: 'color selection', variants: ['silver', 'white', 'black'] },
-      { id: 'cta-buy', role: 'primary buy button' },
-      { id: 'dimensions', role: 'thinness / weight highlight strip' },
-      { id: 'gallery', role: 'product photo gallery' },
-      { id: 'size-compare', role: 'physical size comparison vs everyday objects (hidden by default)' },
-      { id: 'specs-detail', role: 'full technical specifications', variants: ['expanded', 'collapsed'] },
-      { id: 'reviews', role: 'expert reviews' },
-      NEWSLETTER,
+      { id: 'cart-items', role: 'cart line items with totals' },
+      { id: 'upsell', role: 'cross-sell suggestions strip' },
+      { id: 'shipping-note', role: 'shipping and returns reassurance', variants: ['short', 'detailed'] },
+      { id: 'cta-checkout', role: 'proceed to checkout button' },
       PROMO,
+      FOOTER,
+    ],
+  },
+  '/checkout.html': {
+    route: '/checkout.html',
+    entries: [
+      THEME,
+      NAV,
+      { id: 'signup-step', role: 'account step', variants: ['guest', 'account'] },
+      { id: 'trust-badges', role: 'security / guarantee reassurance strip' },
+      { id: 'cta-continue', role: 'continue to payment button' },
+      FOOTER,
+    ],
+  },
+  '/payment.html': {
+    route: '/payment.html',
+    entries: [
+      THEME,
+      NAV,
+      { id: 'payment-methods', role: 'payment method selection', variants: ['pix', 'card', 'installments'] },
+      { id: 'order-summary', role: 'order summary box' },
+      { id: 'cta-pay', role: 'place order button' },
+      FOOTER,
+    ],
+  },
+  '/done.html': {
+    route: '/done.html',
+    entries: [
+      THEME,
+      NAV,
+      { id: 'confirmation', role: 'order confirmation summary' },
+      { id: 'next-steps', role: 'post-purchase suggestions', variants: ['setup-guides', 'more-gear'] },
       FOOTER,
     ],
   },
