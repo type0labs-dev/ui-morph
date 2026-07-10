@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Laptops — NOVA · ui-morph × Carbon</title>
+</head>
+<body>
+  <div data-morph="theme" hidden></div>
+
+  <nav data-morph="nav" class="store-nav">
+    <strong>NOVA</strong>
+    <span class="links"><a href="/index.html">HOME</a> <a href="/products.html">LAPTOPS</a> <a href="/accessories.html">GEAR</a></span>
+  </nav>
+
+  <header data-morph="hero" class="hero">
+    <div data-morph-variant="visual">
+      <h1>The lineup.</h1>
+      <p>Three sizes. One obsession.</p>
+    </div>
+    <div data-morph-variant="technical" hidden>
+      <h1>Compare by numbers.</h1>
+      <p>Sortable specs, watt-hours and thermals for every configuration.</p>
+    </div>
+  </header>
+
+  <section data-morph="product-grid" class="section">
+    <h2>Models</h2>
+    <div class="grid">
+      <cds-tile><h3>NOVA 13</h3><p>1.1kg · 13.4″ · from $1,299</p><cds-button size="sm" data-morph="cta-buy-13" href="#">Buy</cds-button></cds-tile>
+      <cds-tile><h3>NOVA 15</h3><p>1.5kg · 15.6″ · from $1,699</p><cds-button size="sm" data-morph="cta-buy-15" href="#">Buy</cds-button></cds-tile>
+      <cds-tile><h3>NOVA 17</h3><p>2.1kg · 17.3″ · from $2,199</p><cds-button size="sm" data-morph="cta-buy-17" href="#">Buy</cds-button></cds-tile>
+    </div>
+  </section>
+
+  <section data-morph="comparison" class="section" hidden>
+    <h2>Side-by-side comparison</h2>
+    <cds-structured-list>
+      <cds-structured-list-head>
+        <cds-structured-list-header-row>
+          <cds-structured-list-header-cell></cds-structured-list-header-cell>
+          <cds-structured-list-header-cell>13</cds-structured-list-header-cell>
+          <cds-structured-list-header-cell>15</cds-structured-list-header-cell>
+          <cds-structured-list-header-cell>17</cds-structured-list-header-cell>
+        </cds-structured-list-header-row>
+      </cds-structured-list-head>
+      <cds-structured-list-body>
+        <cds-structured-list-row><cds-structured-list-cell>CPU</cds-structured-list-cell><cds-structured-list-cell>10-core</cds-structured-list-cell><cds-structured-list-cell>12-core</cds-structured-list-cell><cds-structured-list-cell>12-core</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>RAM max</cds-structured-list-cell><cds-structured-list-cell>32GB</cds-structured-list-cell><cds-structured-list-cell>64GB</cds-structured-list-cell><cds-structured-list-cell>64GB</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>Battery</cds-structured-list-cell><cds-structured-list-cell>63Wh</cds-structured-list-cell><cds-structured-list-cell>84Wh</cds-structured-list-cell><cds-structured-list-cell>99Wh</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>Ports</cds-structured-list-cell><cds-structured-list-cell>2×TB4</cds-structured-list-cell><cds-structured-list-cell>3×TB4 + HDMI</cds-structured-list-cell><cds-structured-list-cell>3×TB4 + HDMI + SD</cds-structured-list-cell></cds-structured-list-row>
+      </cds-structured-list-body>
+    </cds-structured-list>
+  </section>
+
+  <section data-morph="gear-teaser" class="section">
+    <h2>Complete your setup</h2>
+    <div class="grid">
+      <cds-tile><h3>VOID Headset</h3><p>Wireless · 38h battery</p><cds-button size="sm" kind="tertiary" data-morph="gear-headset" href="/accessories.html">See gear</cds-button></cds-tile>
+      <cds-tile><h3>CORE GPU Dock</h3><p>eGPU over TB4</p><cds-button size="sm" kind="tertiary" data-morph="gear-gpu-dock" href="/accessories.html">See gear</cds-button></cds-tile>
+    </div>
+  </section>
+
+  <section data-morph="reviews" class="section">
+    <h2>Reviews</h2>
+    <blockquote>“Best keyboard in its class, and the thermals hold 5.0GHz sustained.” — laptopbench.io</blockquote>
+  </section>
+
+  <section data-morph="promo-banner" class="section">
+    <cds-inline-notification kind="info" title="Winter sale" subtitle="up to 20% off, this week" hide-close-button low-contrast></cds-inline-notification>
+  </section>
+
+  <footer data-morph="footer" class="store-footer">MIT demo · <a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a> × IBM Carbon</footer>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

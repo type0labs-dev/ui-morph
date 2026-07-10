@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NOVA Laptops — ui-morph × Carbon</title>
+</head>
+<body>
+  <div data-morph="theme" hidden></div>
+
+  <nav data-morph="nav" class="store-nav">
+    <strong>NOVA</strong>
+    <span class="links"><a href="/index.html">HOME</a> <a href="/products.html">LAPTOPS</a> <a href="/accessories.html">GEAR</a></span>
+  </nav>
+
+  <header data-morph="hero" class="hero">
+    <div data-morph-variant="visual">
+      <h1>Machines that feel like magic.</h1>
+      <p>Thin. Silent. Beautiful. The laptop you'll want on your desk.</p>
+    </div>
+    <div data-morph-variant="technical" hidden>
+      <h1>64GB LPDDR5X · 12-core · 99Wh</h1>
+      <p>Full spec sheets, thermal curves and benchmark data. No marketing adjectives.</p>
+    </div>
+    <cds-button data-morph="cta-hero" href="/products.html">See the lineup</cds-button>
+  </header>
+
+  <section data-morph="testimonials" class="section">
+    <h2>Loved by people like you</h2>
+    <blockquote>“I stopped thinking about my machine. It just disappears.” — Ana, designer</blockquote>
+  </section>
+
+  <section data-morph="specs-teaser" class="section">
+    <h2>Under the hood</h2>
+    <cds-structured-list>
+      <cds-structured-list-body>
+        <cds-structured-list-row><cds-structured-list-cell>CPU</cds-structured-list-cell><cds-structured-list-cell>12-core, 5.1GHz boost</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>Memory</cds-structured-list-cell><cds-structured-list-cell>up to 64GB LPDDR5X</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>Battery</cds-structured-list-cell><cds-structured-list-cell>99Wh · 18h real-world</cds-structured-list-cell></cds-structured-list-row>
+      </cds-structured-list-body>
+    </cds-structured-list>
+  </section>
+
+  <section data-morph="promo-banner" class="section">
+    <cds-inline-notification kind="info" title="Winter sale" subtitle="up to 20% off, this week" hide-close-button low-contrast></cds-inline-notification>
+  </section>
+
+  <footer data-morph="footer" class="store-footer">MIT demo · <a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a> × IBM Carbon</footer>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

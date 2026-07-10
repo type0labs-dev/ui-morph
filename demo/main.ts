@@ -1,55 +1,11 @@
 import { Morph, personaKey, type AuditEvent, type PageManifest, type Persona } from '../src/index.ts'
 import { DEMO_QUANTIZE, derivePath, estimateObjectives, nextRoute, themeFor } from './salesman.ts'
+import { MANIFESTS } from './manifests.ts'
 
 // Demo wiring: three-page store + consent banner + live HUD.
 // Cold path: real LLM if you point it at one (see README), else a mock model
 // that also emits one FORBIDDEN op ("hide nav") so you can watch the guard
 // reject it in the audit log — the seatbelt, on camera.
-
-const THEME = { id: 'theme', role: 'page design-token theme', variants: ['default', 'tech-savvy', 'gamer'] }
-
-const MANIFESTS: Record<string, PageManifest> = {
-  '/index.html': {
-    route: '/index.html',
-    entries: [
-      THEME,
-      { id: 'nav', role: 'site navigation', protected: true },
-      { id: 'hero', role: 'landing hero', variants: ['visual', 'technical'] },
-      { id: 'cta-hero', role: 'hero call-to-action' },
-      { id: 'testimonials', role: 'social proof quotes' },
-      { id: 'specs-teaser', role: 'technical specs preview table' },
-      { id: 'promo-banner', role: 'seasonal discount banner' },
-      { id: 'footer', role: 'footer', protected: true },
-    ],
-  },
-  '/products.html': {
-    route: '/products.html',
-    entries: [
-      THEME,
-      { id: 'nav', role: 'site navigation', protected: true },
-      { id: 'hero', role: 'catalog hero', variants: ['visual', 'technical'] },
-      { id: 'product-grid', role: 'product cards with buy CTAs' },
-      { id: 'comparison', role: 'side-by-side spec comparison table (hidden by default)' },
-      { id: 'gear-teaser', role: 'accessory cross-sell strip' },
-      { id: 'reviews', role: 'expert reviews' },
-      { id: 'promo-banner', role: 'seasonal discount banner' },
-      { id: 'footer', role: 'footer', protected: true },
-    ],
-  },
-  '/accessories.html': {
-    route: '/accessories.html',
-    entries: [
-      THEME,
-      { id: 'nav', role: 'site navigation', protected: true },
-      { id: 'hero', role: 'gear hero', variants: ['visual', 'technical'] },
-      { id: 'gear-grid', role: 'accessory cards with add CTAs' },
-      { id: 'compat-table', role: 'laptop×accessory compatibility matrix (hidden by default)' },
-      { id: 'reviews', role: 'expert reviews' },
-      { id: 'promo-banner', role: 'seasonal discount banner' },
-      { id: 'footer', role: 'footer', protected: true },
-    ],
-  },
-}
 
 // Mock cold path: deterministic, persona-aware, and deliberately tries one
 // protected op so the guard has something to catch.

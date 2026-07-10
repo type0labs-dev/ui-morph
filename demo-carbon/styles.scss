@@ -1,0 +1,336 @@
+// Carbon token themes selected by the engine's attribute-mode swap-variant.
+// A "theme" here is nothing but a token set — sketch 05, on a real DS.
+@use '@carbon/styles/scss/reset';
+@use '@carbon/styles/scss/theme';
+@use '@carbon/styles/scss/themes';
+@use '@carbon/styles/scss/type';
+
+body {
+  @include theme.theme(themes.$white);
+}
+
+/* tech-savvy — Carbon g90: dense, dark, data-first */
+body:has([data-morph='theme'][data-morph-variant-active='tech-savvy']) {
+  @include theme.theme(themes.$g90);
+}
+
+/* gamer — Carbon g100 plus purple accent overrides: a custom theme built
+   inside the DS grammar (token overrides, not new CSS) */
+body:has([data-morph='theme'][data-morph-variant-active='gamer']) {
+  @include theme.theme(themes.$g100);
+  --cds-button-primary: #7c3aed;
+  --cds-button-primary-hover: #6d28d9;
+  --cds-button-primary-active: #5b21b6;
+  --cds-link-primary: #a78bfa;
+  --cds-support-info: #a78bfa;
+  --cds-focus: #a78bfa;
+}
+
+/* ── store chrome, all on Carbon tokens ── */
+body {
+  background: var(--cds-background);
+  color: var(--cds-text-primary);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  padding-bottom: 30vh;
+  /* room for the docked inspector */
+  margin-right: var(--inspector-width, 400px);
+}
+
+cds-button:not(:defined),
+cds-tile:not(:defined),
+cds-tag:not(:defined) {
+  visibility: hidden;
+}
+
+.store-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--cds-border-subtle-01);
+  background: var(--cds-layer-01);
+}
+.store-nav .links a {
+  margin-left: 16px;
+  color: var(--cds-link-primary);
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.hero {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+.hero h1 {
+  @include type.type-style('fluid-heading-05', true);
+}
+.hero p {
+  margin-top: 12px;
+  color: var(--cds-text-secondary);
+}
+.hero cds-button {
+  display: inline-block;
+  margin-top: 20px;
+}
+
+.section {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  border-top: 1px solid var(--cds-border-subtle-01);
+}
+.section h2 {
+  @include type.type-style('heading-03');
+  margin-bottom: 16px;
+}
+.section blockquote {
+  color: var(--cds-text-secondary);
+  font-style: italic;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.grid cds-tile h3 {
+  @include type.type-style('heading-02');
+}
+.grid cds-tile p {
+  margin: 8px 0 12px;
+  color: var(--cds-text-secondary);
+  font-size: 14px;
+}
+.grid .tags {
+  margin-bottom: 8px;
+}
+
+.store-footer {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  color: var(--cds-text-helper);
+  font-size: 13px;
+}
+.store-footer a {
+  color: var(--cds-link-primary);
+}
+
+/* emphasis levels the engine can apply — accent ring on Carbon tokens */
+[data-morph-emphasis='subtle'] {
+  outline: 1px solid var(--cds-support-info);
+  outline-offset: 4px;
+}
+[data-morph-emphasis='strong'] {
+  outline: 2px solid var(--cds-support-info);
+  outline-offset: 6px;
+  box-shadow: 0 0 32px color-mix(in srgb, var(--cds-support-info) 20%, transparent);
+}
+
+/* ── consent banner (demo chrome, not themed site UI) ── */
+#morph-consent {
+  position: fixed;
+  inset: auto 16px 16px 16px;
+  max-width: 520px;
+  margin: 0 auto;
+  background: #141419;
+  border: 1px solid #2e2e36;
+  border-radius: 8px;
+  padding: 18px;
+  z-index: 50;
+  color: #e8e8ec;
+}
+#morph-consent p {
+  font-size: 13px;
+  color: #b8b8c0;
+}
+#morph-consent .row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+#morph-consent button {
+  padding: 8px 18px;
+  border: 1px solid #2e2e36;
+  background: none;
+  color: #e8e8ec;
+  cursor: pointer;
+  font-size: 13px;
+}
+#morph-consent button.yes {
+  background: #c3fffc;
+  color: #0b0b0e;
+  border: none;
+  font-weight: 700;
+}
+
+/* ── the inspector (debug/story chrome — deliberately outside the theme system) ── */
+:root {
+  --inspector-width: 400px;
+}
+#morph-inspector {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--inspector-width);
+  overflow-y: auto;
+  background: #0d0d12;
+  border-left: 1px solid #26262c;
+  color: #e8e8ec;
+  font: 11px/1.55 'IBM Plex Mono', ui-monospace, monospace;
+  z-index: 40;
+}
+#morph-inspector header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #26262c;
+  position: sticky;
+  top: 0;
+  background: #0d0d12;
+}
+#morph-inspector h4 {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #c3fffc;
+}
+#morph-inspector .toggle {
+  background: none;
+  border: 1px solid #2e2e36;
+  color: #9a9aa4;
+  cursor: pointer;
+  font-size: 10px;
+  padding: 2px 8px;
+}
+#morph-inspector.collapsed {
+  width: 36px;
+  overflow: hidden;
+}
+#morph-inspector.collapsed .rail {
+  writing-mode: vertical-rl;
+  display: block;
+  margin: 12px auto;
+  letter-spacing: 0.15em;
+  color: #c3fffc;
+  font-size: 10px;
+}
+#morph-inspector.collapsed .toggle {
+  display: block;
+  margin: 10px auto 0;
+}
+#morph-inspector section {
+  padding: 10px 14px;
+  border-bottom: 1px solid #1b1b20;
+}
+#morph-inspector h5 {
+  color: #71717c;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 10px;
+  margin-bottom: 8px;
+}
+#morph-inspector .dim {
+  color: #55555e;
+  text-transform: none;
+  letter-spacing: normal;
+}
+#morph-inspector .kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 1px 0;
+}
+#morph-inspector .kv span {
+  color: #71717c;
+}
+#morph-inspector .kv b {
+  font-weight: 400;
+  text-align: right;
+  word-break: break-all;
+}
+#morph-inspector .json {
+  background: #101016;
+  border: 1px solid #1b1b20;
+  padding: 8px 10px;
+  white-space: pre-wrap;
+  color: #9a9aa4;
+}
+#morph-inspector .json .v {
+  color: #e8e8ec;
+  transition: color 0.3s;
+}
+#morph-inspector .json .v.changed {
+  color: #0d0d12;
+  background: #c3fffc;
+}
+#morph-inspector .because div {
+  color: #7ee2b8;
+  padding: 1px 0;
+}
+#morph-inspector .summary-row,
+#morph-inspector summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 8px;
+  align-items: center;
+  cursor: pointer;
+  padding: 2px 0;
+}
+#morph-inspector .obj-top {
+  border: 1px solid #2e2e36;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+}
+#morph-inspector .bar {
+  grid-column: 1 / -1;
+  height: 4px;
+  background: #1b1b20;
+  overflow: hidden;
+}
+#morph-inspector .bar i {
+  display: block;
+  height: 100%;
+  background: #c3fffc;
+}
+#morph-inspector .parts div {
+  display: flex;
+  justify-content: space-between;
+  color: #f9e2af;
+  padding: 1px 0 1px 12px;
+}
+#morph-inspector .path {
+  color: #f9e2af;
+  word-break: break-all;
+}
+#morph-inspector .op {
+  margin: 4px 0;
+}
+#morph-inspector .op code {
+  display: block;
+  word-break: break-all;
+  color: #9a9aa4;
+}
+#morph-inspector .op.ok code {
+  color: #7ee2b8;
+}
+#morph-inspector .op.no code {
+  color: #f38ba8;
+}
+#morph-inspector .op .why {
+  display: block;
+  color: #c3fffc;
+  padding-left: 14px;
+}
+#morph-inspector .log {
+  color: #9a9aa4;
+  word-break: break-all;
+  padding: 1px 0;
+}
+#morph-inspector .log.op-applied { color: #7ee2b8; }
+#morph-inspector .log.op-rejected { color: #f38ba8; }
+#morph-inspector .log.chain-hit { color: #c3fffc; }
+#morph-inspector .log.chain-compiled { color: #f9e2af; }
