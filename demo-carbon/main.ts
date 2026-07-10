@@ -95,7 +95,7 @@ function predictAndPreadapt() {
   if (!morph.consented) return
   const p = morph.personaLive()
   const ranked = estimateObjectives(p)
-  const targets = [...new Set([nextRoute(ranked, route), nextRoute(ranked.slice(1), route), route])].filter(
+  const targets = [...new Set([nextRoute(ranked, route, p), nextRoute(ranked.slice(1), route, p), route])].filter(
     (r): r is string => !!r,
   )
   const prediction = `${personaKey(p)}→${targets.join(',')}`

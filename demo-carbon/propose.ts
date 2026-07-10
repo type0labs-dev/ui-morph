@@ -65,6 +65,20 @@ function decide(persona: Persona, manifest: PageManifest): ProposedOp[] {
   }
   if (persona.intent === 'compare' && has('reviews'))
     out.push({ op: { op: 'reorder', target: 'reviews', before: 'promo-banner' }, why: 'compare intent → social proof higher' })
+
+  // funnel steps
+  if (persona.painPoints.includes('ignored-cta') && has('upsell'))
+    out.push({ op: { op: 'hide', target: 'upsell' }, why: 'ignored-cta pain → no cross-sell pressure at the cart' })
+  if (persona.traits.includes('comfort') && has('shipping-note'))
+    out.push({ op: { op: 'swap-variant', target: 'shipping-note', variant: 'detailed' }, why: 'comfort persona → reassurance spelled out in full' })
+  if ((persona.traits.includes('gift-buyer') || persona.traits.includes('comfort')) && has('signup-step'))
+    out.push({ op: { op: 'swap-variant', target: 'signup-step', variant: 'guest' }, why: 'gift/comfort buyer → no account friction, guest checkout first' })
+  if (persona.traits.includes('price-aware') && has('payment-methods'))
+    out.push({ op: { op: 'swap-variant', target: 'payment-methods', variant: 'pix' }, why: 'price-aware → the 5%-off method leads' })
+  else if (persona.traits.includes('comfort') && has('payment-methods'))
+    out.push({ op: { op: 'swap-variant', target: 'payment-methods', variant: 'installments' }, why: 'comfort persona → predictable monthly amounts' })
+  if (persona.traits.includes('gamer') && has('next-steps'))
+    out.push({ op: { op: 'swap-variant', target: 'next-steps', variant: 'more-gear' }, why: 'gamer → the setup is never finished' })
   return out
 }
 

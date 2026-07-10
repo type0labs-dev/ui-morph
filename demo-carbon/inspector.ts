@@ -101,7 +101,7 @@ export function mountInspector(ctx: InspectorCtx): () => void {
     // site-vocabulary traits get their specific because; drop the generic core line
     const because = [...explainSiteTraits(signals), ...coreBecause.filter((b) => !b.includes('(traitsOf)'))]
     const objectives = estimateObjectivesExplained(persona)
-    const path = derivePath(objectives, ctx.route)
+    const path = derivePath(objectives, ctx.route, persona)
     const next = path[0]
     const preadapted =
       next && ctx.auditLog.some((e) => (e.kind === 'chain-compiled' || e.kind === 'chain-hit') && e.detail.includes(next))

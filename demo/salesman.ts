@@ -41,6 +41,15 @@ const GIFT = /presente|gift/i
 const PRICE = /barato|cheap|budget|promo|deal|desconto|oferta/i
 const TERM_RULES = [THIN, WHITE, GIFT, PRICE]
 
+function cartItems(): number {
+  try {
+    const c = JSON.parse(localStorage.getItem('nova:cart') ?? '{}') as Record<string, number>
+    return Object.values(c).reduce((s, q) => s + q, 0)
+  } catch {
+    return 0
+  }
+}
+
 /** Search tokens no rule consumed — lost evidence, surfaced instead of silent. */
 export function unmappedSearchTerms(): string[] {
   const tokens = searchTerms().toLowerCase().split(/\s+/).filter(Boolean)
@@ -69,6 +78,11 @@ interface ScorePart {
 }
 const always = () => true
 const SCORING: Record<string, ScorePart[]> = {
+  complete_purchase: [
+    { label: 'base rate', points: 3, when: always },
+    { label: 'items in cart', points: 55, when: (p) => has(p, 'cart-holder') },
+    { label: 'gift deadline pressure', points: 5, when: (p) => has(p, 'gift-buyer') && has(p, 'cart-holder') },
+  ],
   hunt_deals: [
     { label: 'base rate', points: 8, when: always },
     { label: 'price-aware trait', points: 45, when: (p) => has(p, 'price-aware') },
@@ -118,26 +132,46 @@ export function estimateObjectives(persona: Persona): RankedObjective[] {
   return estimateObjectivesExplained(persona).map(({ id, p }) => ({ id, p }))
 }
 
-// expected page sequence per objective — the demo site's map, home → goal
+/** Predicted detail page for this persona — site affinity rules, deterministic. */
+export function predictSku(persona: Persona): string {
+  if (has(persona, 'thin-focus') || has(persona, 'color-white') || has(persona, 'gift-buyer') || has(persona, 'comfort'))
+    return 'nova-13-air'
+  if (has(persona, 'gamer')) return 'gear-controller'
+  if (has(persona, 'technical') || has(persona, 'reader')) return 'nova-15-pro'
+  if (has(persona, 'price-aware')) return 'nova-15' // the -20% flagship deal
+  return 'nova-15' // best seller
+}
+
+// expected page sequence per objective — the demo site's map, home → goal.
+// '{detail}' is filled with the persona's predicted sku at derive time.
+const FUNNEL = ['/cart.html', '/checkout.html', '/payment.html', '/done.html']
 const PATHS: Record<string, string[]> = {
+  complete_purchase: ['/index.html', '/products.html', '{detail}', ...FUNNEL],
   hunt_deals: ['/index.html', '/products.html'],
-  buy_gift_laptop: ['/index.html', '/products.html', '/product.html'],
-  purchase_accessories: ['/index.html', '/products.html', '/accessories.html'],
+  buy_gift_laptop: ['/index.html', '/products.html', '{detail}', ...FUNNEL],
+  purchase_accessories: ['/index.html', '/products.html', '/accessories.html', '{detail}', ...FUNNEL],
   compare_specs: ['/index.html', '/products.html'],
-  purchase_laptop: ['/index.html', '/products.html'],
+  purchase_laptop: ['/index.html', '/products.html', '{detail}', ...FUNNEL],
   contact_support: ['/index.html'],
   check_order_status: ['/index.html'],
 }
 
-/** Remaining expected sequence after the current route, for the top objective. */
-export function derivePath(objectives: RankedObjective[], currentRoute: string): string[] {
-  const seq = PATHS[objectives[0]?.id ?? ''] ?? []
-  const at = seq.indexOf(currentRoute)
+const pathOf = (route: string) => route.split('?')[0]!
+
+/**
+ * Remaining expected sequence after the current route, for the top objective.
+ * Steps match by pathname (the detail step is sku-parameterized); the persona,
+ * when given, fills '{detail}' with its predicted sku.
+ */
+export function derivePath(objectives: RankedObjective[], currentRoute: string, persona?: Persona): string[] {
+  const sku = persona ? predictSku(persona) : 'nova-15'
+  const seq = (PATHS[objectives[0]?.id ?? ''] ?? []).map((s) => (s === '{detail}' ? `/product.html?sku=${sku}` : s))
+  const at = seq.findIndex((s) => pathOf(s) === pathOf(currentRoute))
   return at === -1 ? seq : seq.slice(at + 1)
 }
 
-export function nextRoute(objectives: RankedObjective[], currentRoute: string): string | null {
-  return derivePath(objectives, currentRoute)[0] ?? null
+export function nextRoute(objectives: RankedObjective[], currentRoute: string, persona?: Persona): string | null {
+  return derivePath(objectives, currentRoute, persona)[0] ?? null
 }
 
 /** Persona → design-system theme tier. Variants of ONE system, never free generation. */
@@ -166,6 +200,7 @@ export const DEMO_QUANTIZE: QuantizeRules = {
     const provided = providedProfile()
     if (provided?.prefs?.includes('large-text')) traits.add('comfort')
     if (provided?.history?.includes('gifts')) traits.add('gift-buyer')
+    if (cartItems() > 0) traits.add('cart-holder')
     return [...traits]
   },
 }
@@ -186,5 +221,7 @@ export function explainSiteTraits(history: Signals[]): string[] {
   const provided = providedProfile()
   if (provided?.prefs?.includes('large-text')) because.push(`trait comfort: PROVIDED adapter — prefers larger text`)
   if (provided?.history?.includes('gifts')) because.push(`trait gift-buyer: PROVIDED adapter — gift purchase history`)
+  const inCart = cartItems()
+  if (inCart > 0) because.push(`trait cart-holder: ${inCart} item(s) in cart`)
   return because
 }

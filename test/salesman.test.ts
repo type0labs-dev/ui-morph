@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { estimateObjectives, estimateObjectivesExplained, explainSiteTraits, derivePath, nextRoute, themeFor, unmappedSearchTerms, DEMO_QUANTIZE } from '../demo/salesman.ts'
+import { estimateObjectives, estimateObjectivesExplained, explainSiteTraits, derivePath, nextRoute, predictSku, themeFor, unmappedSearchTerms, DEMO_QUANTIZE } from '../demo/salesman.ts'
 import type { Persona, Signals } from '../src/types.ts'
 
 // Site-side salesman logic: deterministic objective estimation, path
@@ -48,9 +48,9 @@ test('a persona with no evidence does not get pushed toward accessories', () => 
 
 test('derivePath: expected remaining sequence from the current route', () => {
   const ranked = estimateObjectives(gamer)
-  assert.deepEqual(derivePath(ranked, '/products.html'), ['/accessories.html'])
-  assert.equal(nextRoute(ranked, '/products.html'), '/accessories.html')
-  assert.equal(nextRoute(ranked, '/accessories.html'), null, 'path ends at the goal page')
+  assert.equal(nextRoute(ranked, '/products.html', gamer), '/accessories.html')
+  assert.equal(nextRoute(ranked, '/accessories.html', gamer), '/product.html?sku=gear-controller')
+  assert.equal(nextRoute(ranked, '/done.html', gamer), null, 'path ends at the goal page')
 })
 
 test('themeFor maps persona to a design-system theme tier', () => {
@@ -152,10 +152,10 @@ test('gift persona ranks buy_gift_laptop on top, decomposed', () => {
   assert.ok(ranked[0]!.parts.some((x) => x.label.includes('gift')))
 })
 
-test('gift path leads to the product detail page', () => {
+test('gift path leads to the predicted detail page and on through the funnel', () => {
   const ranked = estimateObjectives(marta)
-  assert.deepEqual(derivePath(ranked, '/products.html'), ['/product.html'])
-  assert.equal(nextRoute(ranked, '/products.html'), '/product.html')
+  assert.equal(nextRoute(ranked, '/products.html', marta), '/product.html?sku=nova-13-air')
+  assert.deepEqual(derivePath(ranked, '/products.html', marta).slice(1), ['/cart.html', '/checkout.html', '/payment.html', '/done.html'])
 })
 
 test('themeFor: comfort below gamer, above tech-savvy', () => {
@@ -193,4 +193,39 @@ test('unmappedSearchTerms names the tokens no rule consumed', () => {
   assert.deepEqual(unmappedSearchTerms(), ['laptop'])
   sessionStorage.setItem('nova:search-terms', '')
   assert.deepEqual(unmappedSearchTerms(), [])
+})
+
+// ── C19c: funnel vocabulary — cart-holder, complete_purchase, predictSku ──
+
+test('a non-empty cart becomes the cart-holder trait, explained', () => {
+  globalThis.sessionStorage = storageShim()
+  globalThis.localStorage = storageShim()
+  localStorage.setItem('nova:cart', JSON.stringify({ 'gear-hub': 1, 'nova-15': 1 }))
+  assert.ok(DEMO_QUANTIZE.traitsOf!([sig({})]).includes('cart-holder'))
+  assert.ok(explainSiteTraits([sig({})]).some((b) => b.includes('cart-holder') && b.includes('2')))
+})
+
+test('cart-holder: complete_purchase tops and the path runs the funnel', () => {
+  const holder: Persona = { tier: 'narrow', intent: 'browse', traits: ['cart-holder'], painPoints: [] }
+  const ranked = estimateObjectives(holder)
+  assert.equal(ranked[0]!.id, 'complete_purchase')
+  assert.deepEqual(derivePath(ranked, '/cart.html', holder), ['/checkout.html', '/payment.html', '/done.html'])
+})
+
+test('predictSku follows persona affinity, deterministically', () => {
+  assert.equal(predictSku(marta), 'nova-13-air')
+  assert.equal(predictSku({ ...marta, traits: ['gamer'] }), 'gear-controller')
+  assert.equal(predictSku({ ...marta, traits: ['technical'] }), 'nova-15-pro')
+  assert.equal(predictSku({ ...marta, traits: ['price-aware'] }), 'nova-15')
+  assert.equal(predictSku({ ...marta, traits: [] }), 'nova-15')
+})
+
+test('parameterized paths: the detail step carries the predicted sku and matches by pathname', () => {
+  const g: Persona = { tier: 'defined', intent: 'evaluate', traits: ['gamer', 'technical'], painPoints: [] }
+  const ranked = estimateObjectives(g) // top: purchase_accessories
+  const fromAccessories = derivePath(ranked, '/accessories.html', g)
+  assert.equal(fromAccessories[0], '/product.html?sku=gear-controller')
+  assert.equal(fromAccessories[1], '/cart.html')
+  const fromDetail = derivePath(ranked, '/product.html?sku=gear-controller', g)
+  assert.deepEqual(fromDetail.slice(0, 2), ['/cart.html', '/checkout.html'])
 })
