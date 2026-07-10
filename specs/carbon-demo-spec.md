@@ -164,6 +164,30 @@ adapter exists to show the stage-3 *shape*, not to endorse enrichment),
 multi-product detail routes, repeating the warm-path proof (owned by the gamer
 act).
 
+## C17 — live cold path (2026-07-10)
+
+User objection, valid: every adaptation so far was proposed by the
+deterministic mock — rules authored ahead of time. The engine always supported
+a real model (`MorphConfig.llm`, any OpenAI-compatible endpoint) but the demo
+never put the generation on camera. Clarified for the record: live persona
+formation and next-page pre-compilation *during* navigation already happen;
+what changes here is WHO proposes (a real model) and that the exchange itself
+becomes visible. Mutations still apply only at page boundaries (invariant #2).
+
+| # | Criterion | Proof |
+|---|---|---|
+| C17a | With live LLM enabled, browsing triggers a real model call during the page's life (precompile). The inspector shows the full exchange: what was SENT (the quantized persona + the manifest — nothing else, invariant #3 on camera), the model's RAW response, and the guard's per-op verdict | live session screenshots + env-gated e2e |
+| C17b | Inspector settings: mock ↔ live toggle, endpoint/model/key (key always masked) persisted in `ui-morph:demo:llm`; a **clear chains** button — the warm path hides generation *by design*, so re-demonstrating requires killing the cache | e2e assert + screenshot |
+| C17c | The main e2e suites stay on the mock (determinism is their contract). A separate `live-llm` project skips without `OPENROUTER_API_KEY` in the local `.env` and asserts only structural truths: a chain compiled from a real response, applied ops all within the manifest vocabulary, guard filtering anything invalid, raw JSON visible in the inspector. Exact ops are never asserted — generation is non-deterministic, and pretending otherwise would fake the proof | env-gated spec + committed evidence of one real session |
+
+Key handling: the API key lives in the browser's localStorage (user-entered via
+settings) and in the local gitignored `.env` for the scripted check. It is
+never committed, never rendered unmasked, and `git grep` for the key prefix is
+part of the pre-commit routine for this work. Probe (2026-07-10):
+`deepseek/deepseek-chat` via OpenRouter returned valid, guard-clean ops from
+the engine's real prompt — and diverged from the mock's choices, which is the
+point.
+
 ## Status — Act 2, Dona Marta (2026-07-10)
 
 C13–C16 met, everything prior still green (`npm run e2e` 6/6 across 3
