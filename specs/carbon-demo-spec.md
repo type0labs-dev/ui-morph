@@ -188,6 +188,42 @@ part of the pre-commit routine for this work. Probe (2026-07-10):
 the engine's real prompt — and diverged from the mock's choices, which is the
 point.
 
+## C18 — catching up with a moving persona (2026-07-10)
+
+Findings from a 5-persona live-model simulation (unscripted personas, real
+deepseek-chat calls, latency 2–5s per call), quantifying the user's report
+that adaptations landed "2–3 pages late":
+
+1. **In-flight compiles die on navigation** — a fetch does not survive the
+   page (session E: compile fired on home, user navigated before the response,
+   chain never stored).
+2. **The persona treadmill** — early-session personas change on every page
+   (narrow→defined, browse→evaluate, +scanner, +pain), so a chain keyed at
+   compile time is stale by the time the route is revisited: perpetual cache
+   miss under fast navigation (sessions B and E — two visits later, still
+   nothing applied).
+3. **Prediction fan-out = 1 route** — only the top objective's next route
+   pre-compiles. When the prediction hits, the design works (session C: 7 ops
+   applied on the very next page).
+4. **Unknown search terms vanish silently** ("notebook barato promoção" →
+   no traits): the model only sees the quantized persona — by design — so the
+   site vocabulary is the coverage ceiling.
+5. "The model only returns the persona" — **not reproduced** (8+ calls, all
+   valid per-element ops arrays; correct `[]` restraint for an empty persona).
+   The confusion was UI ambiguity between "sent" and in-flight/lost states.
+
+Criteria:
+
+| # | Criterion | Proof |
+|---|---|---|
+| C18a | **Similarity read-fallback (core change, the roadmap's "similarity matching" TODO).** On an exact-key miss at `start()`, chains for the same route+manifest are scored by a deterministic persona-similarity rule (token Jaccard over the four axes); the nearest above the threshold applies, audited as `similar (score ≈ key)`. The exact-key compile still fires — the cache converges. Identical personas stay deterministic (lexicographic tie-break); similar personas share a UI until their exact chain exists. Configurable `MorphConfig.similarity` (default 0.5; `1` = exact only). Chains being applied were already guard-validated against this same manifest hash | unit tests + deterministic e2e treadmill regression |
+| C18b | Precompile fan-out (demo): top-2 objective routes + the current route compile in parallel; cost noted (up to ~3 live calls per persona change; exact-key dedupe still applies) | e2e assert (2+ routes compiled from one page) |
+| C18c | Search vocabulary: `barato/cheap/budget/promo…` → `price-aware` trait, `hunt_deals` objective and a deals-strip rule; **unmapped search tokens are shown in the inspector** as lost evidence instead of vanishing | unit tests + inspector assert |
+| C18d | Cold-path UI states: an in-flight compile interrupted by navigation is reported on the next page ("⚠ compile for X interrupted"); "thinking…" remains for live in-flight | e2e/manual + screenshot |
+
+`ChainStore.list()` is optional: stores without it (e.g. the remote stub) skip
+the fallback — documented, not silent.
+
 ## Status — C17, live cold path (2026-07-10)
 
 C17a/b/c met. Live evidence committed (`live-coldpath.png`: quantized persona
