@@ -142,6 +142,28 @@ Supporting decisions:
   that is the designed behavior, not a migration.
 - R1–R8, C9, C10 remain in force and green.
 
+## Act 2 — Dona Marta (2026-07-10)
+
+The thesis scene, end to end: a grandmother searches "laptop fino branco" as a
+gift for her 14-year-old granddaughter. She doesn't care about specs; she cares
+that it's thin, white, and easy to buy. The salesman-at-a-distance reads the
+search term, her sign-in profile (simulated PROVIDED adapter) and her clicks —
+and the **product detail page reorganizes itself for her** before she opens it.
+Same store, same engine as the gamer act: two people, two completely different
+pages.
+
+| # | Criterion | Proof |
+|---|---|---|
+| C13 | Search terms are first-party signals: arriving with `?utm_term=laptop+fino+branco` (simulated shopping-ad click — organic Google has not passed the query in the referrer since ~2013, recorded here for honesty) or typing in the store's own search box yields traits `thin-focus`, `color-white`, `gift-buyer`, each with a "searched …" because in the inspector | e2e asserts + screenshot |
+| C14 | PROVIDED stage, simulated: "Sign in as Marta" (the explicit action = stage-3 consent) feeds a fake profile (age-range 65+, prefers larger text, gift history) through a site-side adapter → trait `comfort`; the inspector shows the payload and attributes each trait to its origin (search / behavior / provided adapter). The core never sees the adapter; the model still receives only the quantized persona | e2e asserts + screenshot |
+| C15 | The detail page (`/product.html`, NOVA 13 Air) is pre-compiled while she is still on the listing and arrives reorganized: gallery reordered to the top, size-comparison shown, **white pre-selected** (`swap-variant color-picker=white`), spec sections collapsed, CTA emphasized — every op with its why. The listing itself also adapts: 13 Air card emphasized, tech-articles section hidden. All of it expressed in the existing five-op vocabulary — no engine changes | e2e DOM asserts + screenshots |
+| C16 | `comfort` theme as the fourth token set (white/g10 base, larger type scale, stronger contrast, generous targets) selected by the same `swap-variant` — accessibility as a design-system variant | e2e computed-style asserts + screenshot |
+
+Out of scope: real demographic data (permanent core non-goal — the simulated
+adapter exists to show the stage-3 *shape*, not to endorse enrichment),
+multi-product detail routes, repeating the warm-path proof (owned by the gamer
+act).
+
 ## Status — NOVA 3.0 (2026-07-10)
 
 C11 and C12 met, R1–R8 + C9/C10 still green after the density rebuild
