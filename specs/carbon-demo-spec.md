@@ -242,6 +242,27 @@ study. All content remains original NOVA material.
 Out of scope: real payment/auth of any kind (steps are simple, honest fakes),
 persisting logs anywhere but the local browser/filesystem, React adapters.
 
+## Status — C19/C20 (2026-07-10)
+
+All criteria met. First laboratory runs, recorded as evidence:
+
+- **mock, n=200, seed 42**: 0 crashes; all four outcomes reached (59 browse /
+  46 cart-abandon / 40 checkout-abandon / 55 purchase); lookups 381 exact /
+  **338 similar** / 284 miss — the C18 fallback carries a third of all page
+  arrivals at scale; 1179 ops applied across all 7 routes; unmapped terms
+  surfaced: 2026, best, controller, faculdade, gamer, grande, headset, laptop,
+  notebook, para, tela, ultrabook (vocabulary backlog, not silence).
+- **live, n=12, seed 42** (deepseek-chat): 1 crash (a 56s-latency outlier —
+  recorded, not hidden); 172 model-generated ops applied across every route;
+  exchange p50 5.5s, p90 9s. Finding folded into the tool: the fake clock
+  compresses wall time to ~0, so live mode must settle pending exchanges per
+  page (10s cap) or every compile dies in flight — the first live run measured
+  exactly that (58/58 misses, 0 ops) before the fix.
+- Scoring calibration caught by the funnel e2e and pinned in TDD: a full cart
+  now always outranks browsing objectives (items-in-cart 72).
+
+Suites: 8/8 mock ×3, live 1/1, 52/52 unit.
+
 ## Status — C18 (2026-07-10)
 
 All four criteria met; suites 7/7 ×3 (mock), live 1/1, unit 48/48. Session E

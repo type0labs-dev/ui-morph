@@ -83,6 +83,14 @@ The walkthrough plays **two acts on the same store**:
 
 Everything is scripted and reproducible: `npm run e2e` replays both walkthroughs (cold act, then a fresh session replaying the identical chain with **zero** LLM calls) and drops screenshot evidence in [`e2e/evidence-carbon/`](./e2e/evidence-carbon/) and [`e2e/evidence/`](./e2e/evidence/). Specs with acceptance criteria: [`specs/carbon-demo-spec.md`](./specs/carbon-demo-spec.md), [`specs/demo-spec.md`](./specs/demo-spec.md).
 
+### The full funnel + the persona laboratory
+
+The Carbon store is a complete e-commerce funnel: an engine-less **entry page** (`/entry.html`, a mock search-results page with organic / sponsored-with-`utm_term` / direct inlets) → home → listings → a **sku-parameterized detail page** for all 12 catalog products (chains are keyed per product) → a real demo-side **cart** → checkout → payment → confirmation. Every step is morphable (guest checkout leading for gift buyers, Pix leading for price-aware visitors, upsells hidden for CTA-averse ones), so the outcome space is real: completed purchases per category, comparison, price study, abandonment at any step.
+
+Every session records its whole story — searches, page arrivals with the cache verdict (exact / similar / miss), persona transitions, every cold-path exchange, every op and every funnel event — downloadable from the inspector as JSON (**session log**; nothing leaves the browser).
+
+To study behavior at scale, `npm run sim` drives seed-deterministic generated personas through the funnel (entry channel × search terms × click pattern × dwell profile × funnel depth) and writes per-session logs plus a `summary.json` to `sim-results/`. `npm run sim -- --live --n 12` runs a real-model sample.
+
 ### Live cold path
 
 By default the demos use a deterministic mock (reproducible walkthroughs are its job). To watch a **real model generate the adaptations during your navigation**, open the inspector's *settings · cold path* panel in the Carbon demo: paste any OpenAI-compatible endpoint + model + API key (OpenRouter, DeepSeek, a local Ollama…) and hit *use live model*. The COLD PATH section then shows each exchange as it happens — exactly what was sent (the quantized persona + the page manifest, nothing else) and the raw ops the model returned, with the guard's verdicts in the decisions log. Use *clear chains* to watch it generate again: once a chain is cached, the warm path deliberately never calls the model.
