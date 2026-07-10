@@ -80,7 +80,9 @@ const always = () => true
 const SCORING: Record<string, ScorePart[]> = {
   complete_purchase: [
     { label: 'base rate', points: 3, when: always },
-    { label: 'items in cart', points: 55, when: (p) => has(p, 'cart-holder') },
+    // dominates every browsing objective: a full cart means the job is now
+    // "finish", not "shop" (calibrated: gift persona peaks at 70 without it)
+    { label: 'items in cart', points: 72, when: (p) => has(p, 'cart-holder') },
     { label: 'gift deadline pressure', points: 5, when: (p) => has(p, 'gift-buyer') && has(p, 'cart-holder') },
   ],
   hunt_deals: [

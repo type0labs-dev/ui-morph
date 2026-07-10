@@ -209,6 +209,9 @@ test('cart-holder: complete_purchase tops and the path runs the funnel', () => {
   const holder: Persona = { tier: 'narrow', intent: 'browse', traits: ['cart-holder'], painPoints: [] }
   const ranked = estimateObjectives(holder)
   assert.equal(ranked[0]!.id, 'complete_purchase')
+  // even for the strongest browsing persona, a full cart makes finishing the job the top objective
+  const giftWithCart: Persona = { ...marta, traits: [...marta.traits, 'cart-holder'] }
+  assert.equal(estimateObjectives(giftWithCart)[0]!.id, 'complete_purchase')
   assert.deepEqual(derivePath(ranked, '/cart.html', holder), ['/checkout.html', '/payment.html', '/done.html'])
 })
 

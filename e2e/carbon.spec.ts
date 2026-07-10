@@ -205,7 +205,7 @@ test('act Marta: search + provided profile reorganize the detail page for a non-
   expect(await themeAttr(page)).toBe('comfort')
   await expect(page.locator('[data-morph="card-13-air"]')).toHaveAttribute('data-morph-emphasis', 'strong')
   await expect(page.locator('[data-morph="articles-teaser"]')).toBeHidden()
-  await expect(page.locator('[data-insp="path"]')).toContainText('/product.html · pre-adapted ✓')
+  await expect(page.locator('[data-insp="path"]')).toContainText('/product.html?sku=nova-13-air · pre-adapted ✓')
   await page.screenshot({ path: `${EV}/m4-listing.png` })
 
   // she opens the card — the detail page was pre-compiled and reorganizes for her (C15)
@@ -266,4 +266,57 @@ test('treadmill regression: a drifted persona reuses the nearest chain (C18a/C18
   expect(arrival.filter((e) => e.kind === 'op-applied').length).toBeGreaterThan(0)
   expect(await themeAttr(page)).toBe('tech-savvy') // the young persona's chain, not nothing
   await page.locator('#morph-inspector').screenshot({ path: `${EV}/c18-similar.png` })
+})
+
+test('full funnel: entry ad → detail → cart → checkout → payment → done, adapted at every step (C19)', async ({
+  page,
+}) => {
+  await page.clock.install()
+
+  // the "outside world" page — no engine runs here
+  await page.goto('/entry.html')
+  await page.locator('#ad-link').click()
+  await expect(page).toHaveURL(/utm_term/)
+  await page.locator('#morph-consent .yes').click()
+  await tick(page)
+
+  // term carried gift/thin/white → gift objective, path through the funnel
+  await expect(page.locator('[data-insp="because"]')).toContainText('gift-buyer')
+
+  await navLink(page, 'Laptops').click()
+  await tick(page)
+  await page.locator('[data-morph="card-13-air"] h3 a').click()
+  await expect(page).toHaveURL(/sku=nova-13-air/)
+  await tick(page)
+
+  // add to cart — real cart, and the trait follows immediately
+  await page.locator('[data-morph="cta-buy"]').click()
+  await expect(page).toHaveURL(/cart/)
+  await tick(page)
+  expect(await page.locator('.cart-line').count()).toBe(1)
+  await expect(page.locator('[data-insp="persona"]')).toContainText('cart-holder')
+  await expect(page.locator('[data-insp="objectives"] .obj-top')).toContainText('complete_purchase')
+  await page.screenshot({ path: `${EV}/c19-cart.png` })
+
+  // checkout arrives pre-adapted: guest step leads for the gift buyer
+  await page.locator('[data-morph="cta-checkout"]').click()
+  await expect(page).toHaveURL(/checkout/)
+  await tick(page)
+  await expect(page.locator('[data-morph="signup-step"] [data-morph-variant="guest"]')).toBeVisible()
+  await expect(page.locator('[data-morph="signup-step"] [data-morph-variant="account"]')).toBeHidden()
+  await page.screenshot({ path: `${EV}/c19-checkout-guest.png` })
+
+  await page.locator('[data-morph="cta-continue"]').click()
+  await tick(page)
+  await page.locator('[data-morph="cta-pay"]').click()
+  await expect(page).toHaveURL(/done/)
+  await tick(page)
+  await expect(page.locator('.step-title')).toContainText('Order confirmed')
+
+  // the session log tells the whole story (C20a)
+  const log = await page.evaluate(() => (window as unknown as { __sessionLog: () => { events: { kind: string }[] } }).__sessionLog())
+  const kinds = log.events.map((e) => e.kind)
+  for (const k of ['search', 'page-enter', 'persona', 'exchange', 'add_to_cart', 'checkout_step', 'purchase'])
+    expect(kinds, `session log has ${k}`).toContain(k)
+  await page.screenshot({ path: `${EV}/c19-done.png` })
 })
