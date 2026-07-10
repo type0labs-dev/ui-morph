@@ -142,6 +142,15 @@ Supporting decisions:
   that is the designed behavior, not a migration.
 - R1–R8, C9, C10 remain in force and green.
 
+## Status — NOVA 3.0 (2026-07-10)
+
+C11 and C12 met, R1–R8 + C9/C10 still green after the density rebuild
+(`npm run e2e` 5/5 across 3 consecutive full runs). Photos committed and
+credited per file. Known limitation, on record instead of hidden: the gear
+cards use generic free-license tech photography — the free pool has no true
+dock/hub product shots. Budget 7 in effect for this demo per the
+justification above.
+
 ## Status (2026-07-10)
 
 All criteria met (R1–R8 regression + C9a/b + C10a–d) — no gaps. All three
