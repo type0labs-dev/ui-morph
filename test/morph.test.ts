@@ -143,3 +143,11 @@ test('MorphConfig.quantize rules reach persona() and personaLive()', () => {
   assert.ok(morph.persona().traits.includes('gamer'))
   assert.ok(morph.personaLive().traits.includes('gamer'))
 })
+
+test('signalsLive returns the stored history when no page is being observed', () => {
+  const entry = { route: '/', referrer: '', device: 'desktop', language: 'en', scrollDepth: 0.5, dwellMs: 20_000, clicked: [], ignored: [], revisits: 0 }
+  sessionStorage.setItem('ui-morph:signals', JSON.stringify([entry]))
+  const morph = new Morph({ intents: ['browse'] })
+  morph.setConsent(true)
+  assert.deepEqual(morph.signalsLive(), [entry])
+})

@@ -8,7 +8,7 @@ import { personaKey, type AuditEvent, type Chain, type ChainStore, type MorphCon
 
 export * from './types.ts'
 export { guard, manifestHash } from './schema.ts'
-export { quantize } from './quantize.ts'
+export { quantize, quantizeExplained } from './quantize.ts'
 export { applyOps } from './apply.ts'
 export { localStore, remoteStore } from './cache.ts'
 
@@ -58,8 +58,13 @@ export class Morph {
    * updates on pagehide, which would freeze the HUD and starve prediction.
    */
   personaLive(): Persona {
+    return quantize(this.signalsLive(), this.cfg.quantize)
+  }
+
+  /** History plus the in-flight page's snapshot — raw input of personaLive(). */
+  signalsLive(): Signals[] {
     const history = this.history()
-    return quantize(this.collector ? [...history, this.collector.snapshot()] : history, this.cfg.quantize)
+    return this.collector ? [...history, this.collector.snapshot()] : history
   }
 
   /**

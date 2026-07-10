@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { guard, manifestHash, isChainValid } from '../src/schema.ts'
-import { quantize } from '../src/quantize.ts'
+import { quantize, quantizeExplained } from '../src/quantize.ts'
 import { personaKey, type PageManifest, type Signals } from '../src/types.ts'
 
 const manifest: PageManifest = {
@@ -132,4 +132,34 @@ test('custom intentOf still wins, defaults fill the rest', () => {
   const p = quantize([sig({})], { intentOf: () => 'accessorize' })
   assert.equal(p.intent, 'accessorize')
   assert.deepEqual(p.traits, [])
+})
+
+test('quantizeExplained: same persona as quantize, plus the fired rules in plain words', () => {
+  const history = [
+    sig({ referrer: 'https://google.com/search' }),
+    sig({ dwellMs: 60_000, scrollDepth: 0.9 }),
+    sig({ dwellMs: 50_000, scrollDepth: 0.8, ignored: ['cta-buy', 'cta-trial'] }),
+    sig({ dwellMs: 55_000, scrollDepth: 0.85, ignored: ['cta-buy'], revisits: 2 }),
+  ]
+  const { persona, because } = quantizeExplained(history)
+  assert.equal(personaKey(persona), personaKey(quantize(history)), 'explained persona identical to quantize')
+  assert.ok(because.some((b) => b.includes('reader') && b.includes('45')), 'reader rule explained with its threshold')
+  assert.ok(because.some((b) => b.includes('search-led')), 'search-led explained')
+  assert.ok(because.some((b) => b.includes('ignored-cta')), 'pain explained')
+  assert.ok(because.some((b) => b.includes('defined')), 'tier explained')
+})
+
+test('quantizeExplained: site traitsOf output is attributed to the site', () => {
+  const { persona, because } = quantizeExplained([sig({ clicked: ['gear-headset'] })], {
+    traitsOf: () => ['gamer'],
+  })
+  assert.ok(persona.traits.includes('gamer'))
+  assert.ok(because.some((b) => b.includes('gamer') && /site/i.test(b)))
+})
+
+test('quantizeExplained: empty evidence explains itself quietly', () => {
+  const { persona, because } = quantizeExplained([sig({})])
+  assert.equal(persona.tier, 'generic')
+  assert.ok(because.some((b) => b.includes('generic')))
+  assert.ok(!because.some((b) => b.includes('reader')))
 })
