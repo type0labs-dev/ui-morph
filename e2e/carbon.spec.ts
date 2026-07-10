@@ -174,3 +174,67 @@ test('theme default: no evidence, untouched Carbon white tokens (R5/C9b)', async
   await expect(page.locator('[data-morph="comparison"]')).toBeHidden() // no evidence → nothing revealed
   await page.screenshot({ path: `${EV}/c9-theme-default.png` })
 })
+
+test('act Marta: search + provided profile reorganize the detail page for a non-technical buyer', async ({ page }) => {
+  await page.clock.install()
+
+  // she clicked a shopping ad: the landing URL carries her search (C13)
+  await page.goto('/index.html?utm_term=laptop+fino+branco', { referer: 'https://google.com/' })
+  await page.locator('#morph-consent .yes').click()
+  await tick(page)
+  await expect(page.locator('[data-insp="because"]')).toContainText('trait thin-focus: searched "laptop fino branco"')
+  await expect(page.locator('[data-insp="because"]')).toContainText('trait color-white')
+  await page.locator('#morph-inspector').screenshot({ path: `${EV}/m1-search-traits.png` })
+
+  // stage-3 PROVIDED, simulated — explicit sign-in is the adapter consent (C14)
+  await page.locator('#nova-signin button').click()
+  await tick(page)
+  await expect(page.locator('[data-insp="provided"]')).toContainText('Marta · 65+')
+  await expect(page.locator('[data-insp="because"]')).toContainText('PROVIDED adapter — prefers larger text')
+  await page.locator('#morph-inspector').screenshot({ path: `${EV}/m2-provided.png` })
+
+  // gift objective on top, path ends at the detail page
+  await expect(page.locator('[data-insp="objectives"] .obj-top')).toContainText('buy_gift_laptop')
+  await expect(page.locator('[data-insp="objectives"] .obj-top')).toContainText('gift-buyer trait')
+  await page.locator('#morph-inspector').screenshot({ path: `${EV}/m3-objectives.png` })
+
+  // the listing arrives adapted for her (C15 listing + C16 theme)
+  await navLink(page, 'Laptops').click()
+  await expect(page).toHaveURL(/products/)
+  await tick(page)
+  expect(await themeAttr(page)).toBe('comfort')
+  await expect(page.locator('[data-morph="card-13-air"]')).toHaveAttribute('data-morph-emphasis', 'strong')
+  await expect(page.locator('[data-morph="articles-teaser"]')).toBeHidden()
+  await expect(page.locator('[data-insp="path"]')).toContainText('/product.html · pre-adapted ✓')
+  await page.screenshot({ path: `${EV}/m4-listing.png` })
+
+  // she opens the card — the detail page was pre-compiled and reorganizes for her (C15)
+  await page.locator('[data-morph="card-13-air"] h3 a').click()
+  await expect(page).toHaveURL(/product\.html/)
+  await tick(page)
+  expect((await audit(page)).find((e) => e.kind === 'chain-hit' && e.detail.includes('0 LLM calls'))).toBeTruthy()
+  expect(await page.locator('[data-morph="color-picker"]').getAttribute('data-morph-variant-active')).toBe('white')
+  await expect(page.locator('[data-morph="size-compare"]')).toBeVisible()
+  await expect(page.locator('[data-morph="cta-buy"]')).toHaveAttribute('data-morph-emphasis', 'strong')
+  const order = await page.evaluate(() =>
+    [...document.querySelectorAll('section[data-morph]')].map((e) => e.getAttribute('data-morph')),
+  )
+  expect(order.indexOf('gallery')).toBeLessThan(order.indexOf('specs-detail'))
+  await expect(page.locator('[data-morph="specs-detail"] [data-morph-variant="collapsed"]')).toBeVisible()
+  await expect(page.locator('[data-morph="specs-detail"] [data-morph-variant="expanded"]')).toBeHidden()
+
+  // C16 — comfort is a real Carbon token set (g10) with a larger reading scale
+  expect(await themeAttr(page)).toBe('comfort')
+  expect(await cssToken(page, '--cds-background')).toBe('#f4f4f4') // Carbon g10
+  const pitchSize = await page.evaluate(() =>
+    parseFloat(getComputedStyle(document.querySelector('.overview .pitch')!).fontSize),
+  )
+  expect(pitchSize).toBeGreaterThan(16)
+  await page.screenshot({ path: `${EV}/m5-detail.png`, fullPage: true })
+
+  // every choice explained (C10 discipline holds for act 2)
+  const decisions = (await page.locator('[data-insp="decisions"]').innerText()) ?? ''
+  expect(decisions).toContain('preselect white')
+  expect(decisions).toContain('images before data')
+  await page.locator('#morph-inspector').screenshot({ path: `${EV}/m6-decisions.png` })
+})
