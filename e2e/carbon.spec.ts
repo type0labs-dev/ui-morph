@@ -32,10 +32,13 @@ async function tick(page: Page) {
   await page.clock.fastForward(1000)
 }
 
+/** UI Shell nav link (the footer repeats the labels — scope to the nav) */
+const navLink = (page: Page, name: string) => page.getByRole('navigation').getByRole('link', { name, exact: true })
+
 async function gamerActOne(page: Page) {
   await page.locator('[data-morph="specs-teaser"] h2').click()
   await tick(page)
-  await page.getByRole('link', { name: 'LAPTOPS' }).click()
+  await navLink(page, 'Laptops').click()
   await expect(page).toHaveURL(/products/)
   await tick(page)
 }
@@ -56,6 +59,11 @@ test('carbon walkthrough: enrichment narrated live, Carbon tokens morph, chain r
     true,
   )
 
+  // C11 — enterprise density: UI Shell header + ≥8 distinct home sections
+  expect(await page.evaluate(() => document.querySelector('cds-header')?.matches(':defined'))).toBe(true)
+  const homeSections = await page.evaluate(() => document.querySelectorAll('section[data-morph], header[data-morph]').length)
+  expect(homeSections).toBeGreaterThanOrEqual(8)
+
   // act 1, home: the inspector explains the first traits as they fire
   await gamerActOne(page)
 
@@ -64,6 +72,18 @@ test('carbon walkthrough: enrichment narrated live, Carbon tokens morph, chain r
   expect(await themeAttr(page)).toBe('tech-savvy')
   expect(await cssToken(page, '--cds-background')).toBe('#262626') // Carbon g90
   await page.screenshot({ path: `${EV}/c9-theme-tech-savvy.png` })
+
+  // C11 — catalog density: six photographed laptops
+  expect(await page.locator('[data-morph="product-grid"] img').count()).toBe(6)
+
+  // C12 — content pattern on camera: technical persona lifted the tech
+  // articles above the social proof at this page boundary, why attached
+  const sectionOrder = await page.evaluate(() =>
+    [...document.querySelectorAll('section[data-morph]')].map((e) => e.getAttribute('data-morph')),
+  )
+  expect(sectionOrder.indexOf('articles-teaser')).toBeLessThan(sectionOrder.indexOf('testimonials'))
+  await expect(page.locator('[data-insp="decisions"]')).toContainText('technical > social proof')
+  await page.locator('#morph-inspector').screenshot({ path: `${EV}/c12-content-pattern.png` })
 
   // C10a + C10d + R2 — trait appears live, with its because, JSON updates mid-page
   const personaBefore = (await page.locator('[data-insp="persona"]').innerText()) ?? ''
@@ -99,7 +119,7 @@ test('carbon walkthrough: enrichment narrated live, Carbon tokens morph, chain r
   await pristine.close()
 
   // navigate into the pre-adapted page
-  await page.getByRole('link', { name: 'GEAR', exact: true }).click()
+  await navLink(page, 'Gear').click()
   await expect(page).toHaveURL(/accessories/)
   await tick(page)
 
@@ -111,6 +131,7 @@ test('carbon walkthrough: enrichment narrated live, Carbon tokens morph, chain r
   expect(await cssToken(page, '--cds-button-primary')).toBe('#7c3aed') // custom accent inside the DS grammar
   await expect(page.locator('[data-morph="gear-grid"]')).toHaveAttribute('data-morph-emphasis', 'strong')
   await expect(page.locator('[data-morph="compat-table"]')).toBeVisible()
+  expect(await page.locator('[data-morph="gear-grid"] img').count()).toBe(6) // C11
   await page.screenshot({ path: `${EV}/c4-preadapt-after.png`, fullPage: true })
   await page.screenshot({ path: `${EV}/c9-theme-gamer.png` })
 
@@ -135,7 +156,7 @@ test('carbon walkthrough: enrichment narrated live, Carbon tokens morph, chain r
   expect(warmAudit.some((e) => e.kind === 'chain-hit' && e.detail.includes('/accessories.html'))).toBe(true)
   await page2.locator('#morph-inspector').screenshot({ path: `${EV}/c7-warm.png` })
 
-  await page2.getByRole('link', { name: 'GEAR', exact: true }).click()
+  await navLink(page2, 'Gear').click()
   await tick(page2)
   const actTwoOps = (await audit(page2)).filter((e) => e.kind === 'op-applied').map((e) => e.detail)
   expect(actTwoOps, 'identical persona → identical deterministic chain').toEqual(actOneOps)
@@ -146,7 +167,7 @@ test('theme default: no evidence, untouched Carbon white tokens (R5/C9b)', async
   await page.goto('/index.html')
   await page.locator('#morph-consent .yes').click()
   await tick(page)
-  await page.getByRole('link', { name: 'LAPTOPS' }).click()
+  await navLink(page, 'Laptops').click()
   await tick(page)
   expect(await themeAttr(page)).toBeNull()
   expect(await cssToken(page, '--cds-background')).toBe('#ffffff') // Carbon white
