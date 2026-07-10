@@ -224,6 +224,24 @@ Criteria:
 `ChainStore.list()` is optional: stores without it (e.g. the remote stub) skip
 the fallback — documented, not silent.
 
+## C19/C20 — full purchase funnel + persona laboratory (2026-07-10)
+
+The store becomes a complete e-commerce funnel so the outcome space is real
+(purchase completed per category, comparison, price study, abandonment at any
+step), new personas can be tested at scale, and every session is recorded for
+study. All content remains original NOVA material.
+
+| # | Criterion | Proof |
+|---|---|---|
+| C19a | Full funnel: `entry.html` (engine-less "external" page with three inlets: organic, `utm_term` ad, direct) → home → listing → detail → `cart.html` (real demo-side cart in `nova:cart`; Add buttons actually add) → `checkout.html` (simple step; `guest`/`account` variants) → `payment.html` (simple step; `pix`/`card`/`installments` variants) → `done.html` (purchase outcome) | e2e happy-path + screenshots |
+| C19b | Full catalog: 12 products (6 laptops + 6 gear) in `catalog.ts`; one `?sku=`-parameterized detail template; `productManifest(sku)` keys **chains per product** (`route = '/product.html?sku=…'`). Honest note: `Signals.route` stays pathname, so revisit counting aggregates per template | unit + e2e asserts |
+| C19c | Funnel objectives: site trait `cart-holder` (reads the cart), objective `complete_purchase` with a path through the whole funnel, and `predictSku(persona)` choosing the predicted detail page by affinity (thin/white→13 Air, gamer→controller, price-aware→deal item) so pre-adaptation follows the parameterized path; per-step mock rules with whys (pix emphasized for price-aware, upsell hidden for ignored-cta, comfort everywhere) | TDD + e2e |
+| C20a | Session log: per-session recorder (page-enter with lookup result exact/similar/miss, persona changes with becauses, cold-path exchanges, ops applied/rejected, funnel events add_to_cart/checkout_step/purchase, search/provided). Downloadable from the inspector as JSON; nothing leaves the browser | e2e assert + manual |
+| C20b | Persona laboratory: `scripts/simulate.mjs`, seed-deterministic sessions combining entry channel × search-term pool (PT/EN, including out-of-vocabulary) × click pattern × dwell profile × target funnel depth × provided on/off. Bulk mock (default `--n 200`) + live sample (`--live --n 12`). Output per run in gitignored `sim-results/`: one JSON per session + `summary.json` (outcomes reached, exact/similar/miss rates, ops per page, latencies, unmapped terms). Findings summarized here after the first run | committed script + run summary in this spec |
+
+Out of scope: real payment/auth of any kind (steps are simple, honest fakes),
+persisting logs anywhere but the local browser/filesystem, React adapters.
+
 ## Status — C18 (2026-07-10)
 
 All four criteria met; suites 7/7 ×3 (mock), live 1/1, unit 48/48. Session E
