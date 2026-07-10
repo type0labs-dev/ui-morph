@@ -164,6 +164,17 @@ adapter exists to show the stage-3 *shape*, not to endorse enrichment),
 multi-product detail routes, repeating the warm-path proof (owned by the gamer
 act).
 
+## Status — Act 2, Dona Marta (2026-07-10)
+
+C13–C16 met, everything prior still green (`npm run e2e` 6/6 across 3
+consecutive full runs; evidence `m1…m6` committed). Core untouched, as
+planned: the whole scene — search-term traits, provided-profile traits, the
+gift objective, the reorganized detail page and the comfort theme — is demo
+vocabulary over the existing five-op engine. One coverage note: the
+standalone tech-savvy theme test had been superseded by the walkthrough's
+g90 assertion + screenshot since the 3.0 selector rewrite; it was left out
+as redundant, not as a gap.
+
 ## Status — NOVA 3.0 (2026-07-10)
 
 C11 and C12 met, R1–R8 + C9/C10 still green after the density rebuild
