@@ -75,12 +75,14 @@ export function livePropose(cfg: LlmConfig) {
     try {
       const ops = await proposeChainOps(persona, manifest, cfg)
       entry.returned = ops
+      unmark(manifest.route) // success only — a navigation abort REJECTS during
+      // teardown, and unmarking there would erase the very evidence the next
+      // page needs to report the interruption (measured: marks died ~100ms
+      // into navigation). Errors also leave the mark: the call was lost either way.
       return ops
     } catch (e) {
       entry.error = String(e)
       throw e
-    } finally {
-      unmark(manifest.route)
     }
   }
 }

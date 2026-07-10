@@ -238,3 +238,32 @@ test('act Marta: search + provided profile reorganize the detail page for a non-
   expect(decisions).toContain('images before data')
   await page.locator('#morph-inspector').screenshot({ path: `${EV}/m6-decisions.png` })
 })
+
+test('treadmill regression: a drifted persona reuses the nearest chain (C18a/C18b)', async ({ page }) => {
+  await page.clock.install()
+  await page.goto('/index.html', { referer: 'https://google.com/' })
+  await page.locator('#morph-consent .yes').click()
+  await page.locator('[data-morph="specs-teaser"] h2').click()
+  await tick(page)
+
+  // C18b — fan-out: this route's own chain AND the predicted next compiled in parallel
+  const compiled = (await audit(page)).filter((e) => e.kind === 'chain-compiled').map((e) => e.detail)
+  expect(compiled.some((d) => d.includes('/index.html'))).toBe(true)
+  expect(compiled.some((d) => d.includes('/products.html'))).toBe(true)
+
+  // drift the persona AFTER those compiles: two more clicks flip the explorer
+  // trait at flush time — the classic early-session treadmill
+  await page.locator('[data-morph="testimonials"] h2').click()
+  await page.locator('[data-morph="promo-banner"]').click()
+  await navLink(page, 'Laptops').click() // navigate with NO further tick — nothing recompiled
+  await expect(page).toHaveURL(/products/)
+  await tick(page)
+
+  // C18a — exact key missed (persona grew), the nearest chain applied anyway
+  const arrival = await audit(page)
+  const similar = arrival.find((e) => e.kind === 'chain-hit' && e.detail.includes('similar ('))
+  expect(similar, `similar fallback fired; audit: ${arrival.map((e) => e.kind).join(',')}`).toBeTruthy()
+  expect(arrival.filter((e) => e.kind === 'op-applied').length).toBeGreaterThan(0)
+  expect(await themeAttr(page)).toBe('tech-savvy') // the young persona's chain, not nothing
+  await page.locator('#morph-inspector').screenshot({ path: `${EV}/c18-similar.png` })
+})

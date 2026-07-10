@@ -188,7 +188,7 @@ export function mountInspector(ctx: InspectorCtx): () => void {
         <h5>4b · cold path <span class="dim">(who proposes the ops)</span></h5>
         <div class="kv"><span>source</span><b>${esc(ctx.coldPath)}</b></div>
         ${interruptedCompiles()
-          .map((i) => `<div class="warn">⚠ compile for ${esc(i.route)} (${esc(i.model)}) interrupted by navigation — retries when predicted again</div>`)
+          .map((i) => `<div class="warn">⚠ compile for ${esc(i.route)} (${esc(i.model)}) lost in flight — navigation or error killed it; retries when predicted again</div>`)
           .join('')}
         ${
           !ctx.live
