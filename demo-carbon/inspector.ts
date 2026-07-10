@@ -1,5 +1,5 @@
 import { quantizeExplained, type AuditEvent, type Morph } from '../src/index.ts'
-import { DEMO_QUANTIZE, derivePath, estimateObjectivesExplained, explainSiteTraits, themeFor } from '../demo/salesman.ts'
+import { DEMO_QUANTIZE, derivePath, estimateObjectivesExplained, explainSiteTraits, providedProfile, searchTerms, themeFor } from '../demo/salesman.ts'
 import { whyFor } from './propose.ts'
 
 // The inspector: the salesman's reasoning, narrated live. Everything shown is
@@ -82,6 +82,18 @@ export function mountInspector(ctx: InspectorCtx): () => void {
                  <div class="kv"><span>clicked</span><b>${current.clicked.map(esc).join(', ') || '—'}</b></div>
                  <div class="kv"><span>ignored ≥1s</span><b>${current.ignored.length} element(s)</b></div>`
         }
+      </section>
+
+      <section data-insp="provided">
+        <h5>1b · search & provided <span class="dim">(site-owned, first-party)</span></h5>
+        <div class="kv"><span>search terms</span><b>${esc(searchTerms()) || '—'}</b></div>
+        ${(() => {
+          const profile = providedProfile()
+          return profile
+            ? `<div class="kv"><span>PROVIDED adapter</span><b>${esc(profile.name ?? '?')} · ${esc(profile.ageRange ?? '?')} · prefs: ${esc((profile.prefs ?? []).join(', '))} · history: ${esc((profile.history ?? []).join(', '))}</b></div>
+               <div class="dim">stage-3 adapter, simulated — explicit sign-in = adapter consent; core never sees it</div>`
+            : `<div class="dim">not signed in — behavioral + search signals only</div>`
+        })()}
       </section>
 
       <section data-insp="persona">

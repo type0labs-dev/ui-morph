@@ -12,6 +12,8 @@ import { DEMO_QUANTIZE, estimateObjectives, nextRoute } from '../demo/salesman.t
 import { MANIFESTS } from './manifests.ts'
 import { mockPropose } from './propose.ts'
 import { mountInspector } from './inspector.ts'
+import { ingestSearchFromUrl, mountSearchBox } from './search.ts'
+import { mountSignIn } from './provided.ts'
 
 // Demo 2 wiring: the same engine and manifests as MVP1, on a real design
 // system (IBM Carbon), narrated by the inspector instead of the compact HUD.
@@ -74,7 +76,10 @@ function predictAndPreadapt() {
   void morph.precompile(MANIFESTS[next]!)
 }
 
+ingestSearchFromUrl() // ad-landing ?utm_term → site-owned first-party store
 renderInspector = mountInspector({ morph, route, auditLog, coldPath: llmRaw ? 'real LLM' : 'mock model' })
+mountSearchBox()
+mountSignIn()
 mountConsent()
 if (morph.consented) void morph.start(manifest)
 
