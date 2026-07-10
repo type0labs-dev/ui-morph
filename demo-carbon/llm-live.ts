@@ -1,5 +1,6 @@
 import { proposeChainOps } from '../src/llm.ts'
 import type { LlmConfig, PageManifest, Persona } from '../src/index.ts'
+import { logEvent } from './session-log.ts'
 
 // Live cold path with the exchange captured for the inspector. The engine
 // contract is untouched: this is cfg.propose returning the model's ops
@@ -75,6 +76,7 @@ export function livePropose(cfg: LlmConfig) {
     try {
       const ops = await proposeChainOps(persona, manifest, cfg)
       entry.returned = ops
+      logEvent('exchange', { source: cfg.model, route: manifest.route, persona, ops, ms: Date.now() - entry.at })
       unmark(manifest.route) // success only — a navigation abort REJECTS during
       // teardown, and unmarking there would erase the very evidence the next
       // page needs to report the interruption (measured: marks died ~100ms
@@ -82,6 +84,7 @@ export function livePropose(cfg: LlmConfig) {
       return ops
     } catch (e) {
       entry.error = String(e)
+      logEvent('exchange', { source: cfg.model, route: manifest.route, persona, error: String(e), ms: Date.now() - entry.at })
       throw e
     }
   }

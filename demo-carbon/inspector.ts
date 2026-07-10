@@ -2,6 +2,7 @@ import { quantizeExplained, type AuditEvent, type Morph } from '../src/index.ts'
 import { DEMO_QUANTIZE, derivePath, estimateObjectivesExplained, explainSiteTraits, providedProfile, searchTerms, themeFor, unmappedSearchTerms } from '../demo/salesman.ts'
 import { whyFor } from './propose.ts'
 import { interruptedCompiles, type ColdPathExchange } from './llm-live.ts'
+import { downloadSessionLog, sessionId } from './session-log.ts'
 
 // The inspector: the salesman's reasoning, narrated live. Everything shown is
 // demo-side data (raw consented signals, deterministic rule traces, cold-path
@@ -63,6 +64,7 @@ export function mountInspector(ctx: InspectorCtx): () => void {
         <button class="use-live">use live model</button>
         <button class="use-mock">use mock</button>
         <button class="clear-chains">clear chains (<span class="chain-count">0</span>)</button>
+        <button class="dl-log">download session log</button>
       </div>
       <div class="dim">key lives in this browser's localStorage only, masked everywhere — sent to nothing but your endpoint. clear chains to watch the cold path generate again (the warm path hides it by design).</div>
     </section>`
@@ -85,6 +87,7 @@ export function mountInspector(ctx: InspectorCtx): () => void {
     localStorage.removeItem(LLM_KEY)
     location.reload()
   })
+  el.querySelector('.dl-log')!.addEventListener('click', () => downloadSessionLog())
   el.querySelector('.clear-chains')!.addEventListener('click', () => {
     chainKeys().forEach((k) => localStorage.removeItem(k))
     location.reload()

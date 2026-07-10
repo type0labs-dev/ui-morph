@@ -1,5 +1,6 @@
 import type { MutationOp, PageManifest, Persona } from '../src/index.ts'
 import { themeFor } from '../demo/salesman.ts'
+import { logEvent } from './session-log.ts'
 
 // Mock cold path with its reasoning attached. The ENGINE receives bare ops —
 // its contract (and the invariants) don't change. The whys are demo-side
@@ -106,5 +107,6 @@ export async function mockPropose(persona: Persona, manifest: PageManifest): Pro
   const store = whyStore()
   for (const { op, why } of proposed) store[whyKey(manifest.route, op)] = why
   localStorage.setItem(WHYS_KEY, JSON.stringify(store))
+  logEvent('exchange', { source: 'mock', route: manifest.route, persona, ops: proposed.map(({ op }) => op) })
   return proposed.map(({ op }) => op)
 }

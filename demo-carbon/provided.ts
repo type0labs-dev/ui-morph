@@ -1,4 +1,5 @@
 import { providedProfile, type ProvidedProfile } from '../demo/salesman.ts'
+import { logEvent } from './session-log.ts'
 
 // Simulated stage-3 PROVIDED adapter (see VISION: stages 3–4 are pluggable,
 // consent-gated, never core). The explicit sign-in click IS the stage-3
@@ -22,8 +23,13 @@ export function mountSignIn(): void {
       ? `<span>👤 ${profile.name} · ${profile.ageRange}</span><button>sign out</button>`
       : `<button>Sign in as Marta</button>`
     el.querySelector('button')!.addEventListener('click', () => {
-      if (providedProfile()) localStorage.removeItem(KEY)
-      else localStorage.setItem(KEY, JSON.stringify(MARTA))
+      if (providedProfile()) {
+        localStorage.removeItem(KEY)
+        logEvent('provided', { action: 'sign-out' })
+      } else {
+        localStorage.setItem(KEY, JSON.stringify(MARTA))
+        logEvent('provided', { action: 'sign-in', profile: MARTA })
+      }
       render()
     })
   }

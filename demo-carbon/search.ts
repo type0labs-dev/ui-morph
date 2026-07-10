@@ -4,6 +4,8 @@
 // and the in-store search box. Site rules (demo/salesman.ts) read the store;
 // the engine never sees raw terms, only the quantized traits they produce.
 
+import { logEvent } from './session-log.ts'
+
 const KEY = 'nova:search-terms'
 
 /** Landing-URL inlet: ?utm_term=laptop+fino+branco or ?q=… */
@@ -13,6 +15,7 @@ export function ingestSearchFromUrl(): void {
 }
 
 export function recordSearch(term: string): void {
+  logEvent('search', { term })
   const prev = sessionStorage.getItem(KEY)
   sessionStorage.setItem(KEY, prev && !prev.includes(term) ? `${prev} ${term}` : (prev ?? term))
 }

@@ -13,7 +13,7 @@ import { DEMO_QUANTIZE, estimateObjectives, nextRoute } from '../demo/salesman.t
 import { manifestFor } from './manifests.ts'
 import { currentSku, renderProductPage } from './product-page.ts'
 import { initFunnel } from './funnel.ts'
-import { logEvent } from './session-log.ts'
+import { logEvent, sessionLog } from './session-log.ts'
 import { mockPropose } from './propose.ts'
 import { mountInspector } from './inspector.ts'
 import { ingestSearchFromUrl, mountSearchBox } from './search.ts'
@@ -34,7 +34,7 @@ try {
 }
 
 const auditLog: AuditEvent[] = []
-Object.assign(window, { __audit: auditLog, __coldpath: coldPathExchanges() }) // e2e reads these
+Object.assign(window, { __audit: auditLog, __coldpath: coldPathExchanges(), __sessionLog: sessionLog }) // e2e/sim read these
 
 let renderInspector: () => void = () => {}
 
@@ -49,6 +49,7 @@ const morph = new Morph({
   propose: llmCfg ? livePropose(llmCfg) : mockPropose,
   onAudit(e) {
     auditLog.push(e)
+    logEvent(`audit:${e.kind}`, { detail: e.detail })
     renderInspector()
   },
 })
@@ -80,7 +81,6 @@ function mountConsent() {
   el.querySelector('.yes')!.addEventListener('click', () => {
     morph.setConsent(true)
     el.remove()
-    void morph.start(manifest)
   })
   el.querySelector('.no')!.addEventListener('click', () => el.remove())
   document.body.appendChild(el)
@@ -116,9 +116,26 @@ renderInspector = mountInspector({
 mountSearchBox()
 mountSignIn()
 mountConsent()
-if (morph.consented) void morph.start(manifest)
 
+function startEngine() {
+  void morph.start(manifest).then(() => {
+    const hit = auditLog.find((e) => e.kind === 'chain-hit')
+    const lookup = !hit ? 'miss' : hit.detail.includes('similar (') ? `similar(${hit.detail.match(/similar \(([\d.]+)/)?.[1] ?? '?'})` : 'exact'
+    logEvent('page-enter', { route, personaKey: personaKey(morph.persona()), lookup })
+  })
+}
+if (morph.consented) startEngine()
+else document.getElementById('morph-consent')?.querySelector('.yes')?.addEventListener('click', startEngine)
+
+let lastPersonaKey = ''
 setInterval(() => {
   renderInspector() // signals/persona/objectives evolve live
+  if (morph.consented) {
+    const k = personaKey(morph.personaLive())
+    if (k !== lastPersonaKey) {
+      lastPersonaKey = k
+      logEvent('persona', { key: k })
+    }
+  }
   predictAndPreadapt()
 }, 500)
