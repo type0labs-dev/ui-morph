@@ -320,3 +320,23 @@ test('full funnel: entry ad → detail → cart → checkout → payment → don
     expect(kinds, `session log has ${k}`).toContain(k)
   await page.screenshot({ path: `${EV}/c19-done.png` })
 })
+
+test('reset demo wipes the visitor but keeps the demo settings', async ({ page }) => {
+  await page.clock.install()
+  await page.goto('/index.html?utm_term=laptop+fino')
+  await page.locator('#morph-consent .yes').click()
+  await page.locator('#nova-signin button').click()
+  await tick(page)
+  expect(
+    await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('ui-morph:') || k.startsWith('nova:')).length),
+  ).toBeGreaterThan(0)
+
+  await page.locator('#morph-inspector .reset-demo').click()
+  await expect(page).toHaveURL(/entry/)
+  const leftovers = await page.evaluate(() =>
+    [...Object.keys(localStorage), ...Object.keys(sessionStorage)].filter(
+      (k) => (k.startsWith('ui-morph:') && k !== 'ui-morph:demo:llm') || k.startsWith('nova:'),
+    ),
+  )
+  expect(leftovers).toEqual([])
+})

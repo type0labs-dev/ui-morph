@@ -65,6 +65,7 @@ export function mountInspector(ctx: InspectorCtx): () => void {
         <button class="use-mock">use mock</button>
         <button class="clear-chains">clear chains (<span class="chain-count">0</span>)</button>
         <button class="dl-log">download session log</button>
+        <button class="reset-demo">⟲ reset demo</button>
       </div>
       <div class="dim">key lives in this browser's localStorage only, masked everywhere — sent to nothing but your endpoint. clear chains to watch the cold path generate again (the warm path hides it by design).</div>
     </section>`
@@ -88,6 +89,16 @@ export function mountInspector(ctx: InspectorCtx): () => void {
     location.reload()
   })
   el.querySelector('.dl-log')!.addEventListener('click', () => downloadSessionLog())
+  el.querySelector('.reset-demo')!.addEventListener('click', () => {
+    // wipe the VISITOR — model settings stay: reset changes who is browsing,
+    // not how the demo is configured
+    const llm = localStorage.getItem(LLM_KEY)
+    ctx.morph.setConsent(false) // official opt-out: disarms the collector, erases ui-morph:*
+    if (llm) localStorage.setItem(LLM_KEY, llm)
+    for (const store of [localStorage, sessionStorage])
+      for (const k of Object.keys(store)) if (k.startsWith('nova:')) store.removeItem(k)
+    location.href = '/entry.html'
+  })
   el.querySelector('.clear-chains')!.addEventListener('click', () => {
     chainKeys().forEach((k) => localStorage.removeItem(k))
     location.reload()

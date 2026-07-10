@@ -42,9 +42,16 @@ export class Morph {
   setConsent(value: boolean): void {
     if (value) localStorage.setItem(CONSENT_KEY, 'yes')
     else {
-      // withdraw = erase: consent, history, every stored chain
-      const dead = Object.keys(localStorage).filter((k) => k.startsWith('ui-morph:'))
-      dead.forEach((k) => localStorage.removeItem(k))
+      // withdraw = erase EVERYTHING — including what the dying page would
+      // still write: disarm the collector first, or the pagehide flush
+      // re-creates signals/visit-counter keys right after the wipe
+      // (found by the reset-button e2e test)
+      this.collector?.stop()
+      this.collector = null
+      for (const store of [localStorage, sessionStorage])
+        Object.keys(store)
+          .filter((k) => k.startsWith('ui-morph:'))
+          .forEach((k) => store.removeItem(k))
     }
     this.audit('consent', value ? 'granted' : 'withdrawn — all ui-morph data erased')
   }
