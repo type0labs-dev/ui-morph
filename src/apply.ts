@@ -29,10 +29,19 @@ export function applyOps(ops: MutationOp[], doc: Document = document): MutationO
         el.setAttribute('data-morph-emphasis', op.level)
         break
       case 'swap-variant': {
-        const variant = el.querySelector<HTMLElement>(`[data-morph-variant="${CSS.escape(op.variant)}"]`)
-        if (!variant) continue
-        for (const v of el.querySelectorAll<HTMLElement>('[data-morph-variant]')) v.hidden = true
-        variant.hidden = false
+        // variants belong to their component: direct children only, so a
+        // page-level target never toggles some nested component's variants
+        const variants = [...el.children].filter((c) => c.hasAttribute('data-morph-variant')) as HTMLElement[]
+        if (variants.length === 0) {
+          // no child variants → attribute mode: CSS token themes select on
+          // [data-morph-variant-active]; the vocabulary stays guard-validated
+          el.setAttribute('data-morph-variant-active', op.variant)
+          break
+        }
+        const next = variants.find((v) => v.getAttribute('data-morph-variant') === op.variant)
+        if (!next) continue
+        for (const v of variants) v.hidden = true
+        next.hidden = false
         break
       }
     }
