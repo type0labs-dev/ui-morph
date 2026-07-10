@@ -42,6 +42,12 @@ cds-tag:not(:defined) {
   visibility: hidden;
 }
 
+/* Carbon's reset sets display on elements, which beats the UA's [hidden] rule
+   — and [hidden] is the engine's hide/show mechanism. Reassert it. */
+[hidden] {
+  display: none !important;
+}
+
 .store-nav {
   display: flex;
   justify-content: space-between;
