@@ -7,7 +7,8 @@ import '@carbon/web-components/es/components/structured-list/index.js'
 import '@carbon/web-components/es/components/accordion/index.js'
 import '@carbon/web-components/es/components/notification/index.js'
 
-import { Morph, personaKey, type AuditEvent } from '../src/index.ts'
+import { Morph, personaKey, type AuditEvent, type LlmConfig } from '../src/index.ts'
+import { coldPathExchanges, livePropose } from './llm-live.ts'
 import { DEMO_QUANTIZE, estimateObjectives, nextRoute } from '../demo/salesman.ts'
 import { MANIFESTS } from './manifests.ts'
 import { mockPropose } from './propose.ts'
@@ -18,9 +19,16 @@ import { mountSignIn } from './provided.ts'
 // Demo 2 wiring: the same engine and manifests as MVP1, on a real design
 // system (IBM Carbon), narrated by the inspector instead of the compact HUD.
 
-// Real LLM config via localStorage (see README):
-//   localStorage.setItem('ui-morph:demo:llm', JSON.stringify({ endpoint: 'http://localhost:11434/v1/chat/completions', model: 'llama3.1' }))
+// Real LLM config lives in localStorage ('ui-morph:demo:llm') — set it in the
+// inspector's settings panel. Any OpenAI-compatible endpoint works.
 const llmRaw = localStorage.getItem('ui-morph:demo:llm')
+let llmCfg: LlmConfig | null = null
+try {
+  const parsed = llmRaw ? (JSON.parse(llmRaw) as LlmConfig) : null
+  llmCfg = parsed?.endpoint && parsed.model ? parsed : null
+} catch {
+  llmCfg = null
+}
 
 const auditLog: AuditEvent[] = []
 Object.assign(window, { __audit: auditLog }) // e2e walkthrough reads the trail here
@@ -33,7 +41,9 @@ const morph = new Morph({
   // legitimate ops common for a defined persona (see carbon-demo-spec)
   budget: 7,
   quantize: DEMO_QUANTIZE,
-  ...(llmRaw ? { llm: JSON.parse(llmRaw) } : { propose: mockPropose }),
+  // live: same engine path as cfg.llm, wrapped so the exchange lands in the
+  // inspector — the model's ops pass through verbatim
+  propose: llmCfg ? livePropose(llmCfg) : mockPropose,
   onAudit(e) {
     auditLog.push(e)
     renderInspector()
@@ -77,7 +87,14 @@ function predictAndPreadapt() {
 }
 
 ingestSearchFromUrl() // ad-landing ?utm_term → site-owned first-party store
-renderInspector = mountInspector({ morph, route, auditLog, coldPath: llmRaw ? 'real LLM' : 'mock model' })
+renderInspector = mountInspector({
+  morph,
+  route,
+  auditLog,
+  coldPath: llmCfg ? `${llmCfg.model} · live` : 'mock model (authored rules)',
+  live: !!llmCfg,
+  exchanges: coldPathExchanges,
+})
 mountSearchBox()
 mountSignIn()
 mountConsent()

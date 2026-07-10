@@ -1,27 +1,37 @@
 import { quantizeExplained, type AuditEvent, type Morph } from '../src/index.ts'
 import { DEMO_QUANTIZE, derivePath, estimateObjectivesExplained, explainSiteTraits, providedProfile, searchTerms, themeFor } from '../demo/salesman.ts'
 import { whyFor } from './propose.ts'
+import type { ColdPathExchange } from './llm-live.ts'
 
 // The inspector: the salesman's reasoning, narrated live. Everything shown is
-// demo-side data (raw consented signals, deterministic rule traces, mock
-// whys) plus the audit trail — the model itself still sees only persona +
-// manifest, and nothing here feeds back into it.
+// demo-side data (raw consented signals, deterministic rule traces, cold-path
+// exchanges, mock whys) plus the audit trail — the model itself still sees
+// only persona + manifest, and nothing here feeds back into it.
+//
+// Structure: a static shell (header + settings form, built once so inputs
+// survive) around a .live region re-rendered every tick.
 
 interface InspectorCtx {
   morph: Morph
   route: string
   auditLog: AuditEvent[]
   coldPath: string
+  live: boolean
+  exchanges: () => ColdPathExchange[]
 }
 
+const LLM_KEY = 'ui-morph:demo:llm'
+
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+const escAttr = (s: string) => esc(s).replace(/"/g, '&quot;')
+
+const chainKeys = () => Object.keys(localStorage).filter((k) => k.startsWith('ui-morph:chain:'))
 
 export function mountInspector(ctx: InspectorCtx): () => void {
   const el = document.createElement('aside')
   el.id = 'morph-inspector'
   document.body.appendChild(el)
 
-  let collapsed = false
   const changedAt = new Map<string, number>() // persona field → last change time
   const prev = new Map<string, string>()
 
@@ -33,18 +43,56 @@ export function mountInspector(ctx: InspectorCtx): () => void {
     return Date.now() - (changedAt.get(field) ?? 0) < 1600 ? ' changed' : ''
   }
 
+  // ── static shell ──
+  let cfg: { endpoint?: string; model?: string; apiKey?: string } = {}
+  try {
+    cfg = JSON.parse(localStorage.getItem(LLM_KEY) ?? '{}') as typeof cfg
+  } catch {
+    /* ignore */
+  }
+  el.innerHTML = `
+    <header><h4>UI-MORPH · INSPECTOR</h4><button class="toggle" title="collapse">▶</button></header>
+    <span class="rail" hidden>UI-MORPH · INSPECTOR</span>
+    <div class="live"></div>
+    <section class="settings" data-insp="settings">
+      <h5>settings · cold path</h5>
+      <div class="frow"><label>endpoint</label><input name="endpoint" value="${escAttr(cfg.endpoint ?? 'https://openrouter.ai/api/v1/chat/completions')}" /></div>
+      <div class="frow"><label>model</label><input name="model" value="${escAttr(cfg.model ?? 'deepseek/deepseek-chat')}" /></div>
+      <div class="frow"><label>api key</label><input name="apiKey" type="password" value="${escAttr(cfg.apiKey ?? '')}" placeholder="sk-…" /></div>
+      <div class="btns">
+        <button class="use-live">use live model</button>
+        <button class="use-mock">use mock</button>
+        <button class="clear-chains">clear chains (<span class="chain-count">0</span>)</button>
+      </div>
+      <div class="dim">key lives in this browser's localStorage only, masked everywhere — sent to nothing but your endpoint. clear chains to watch the cold path generate again (the warm path hides it by design).</div>
+    </section>`
+
+  const liveEl = el.querySelector<HTMLElement>('.live')!
+  const rail = el.querySelector<HTMLElement>('.rail')!
+
+  el.querySelector('.toggle')!.addEventListener('click', () => {
+    const collapsed = el.classList.toggle('collapsed')
+    rail.hidden = !collapsed
+    document.documentElement.style.setProperty('--inspector-width', collapsed ? '36px' : '400px')
+  })
+
+  const input = (name: string) => el.querySelector<HTMLInputElement>(`.settings input[name="${name}"]`)!.value.trim()
+  el.querySelector('.use-live')!.addEventListener('click', () => {
+    localStorage.setItem(LLM_KEY, JSON.stringify({ endpoint: input('endpoint'), model: input('model'), apiKey: input('apiKey') }))
+    location.reload()
+  })
+  el.querySelector('.use-mock')!.addEventListener('click', () => {
+    localStorage.removeItem(LLM_KEY)
+    location.reload()
+  })
+  el.querySelector('.clear-chains')!.addEventListener('click', () => {
+    chainKeys().forEach((k) => localStorage.removeItem(k))
+    location.reload()
+  })
+
+  // ── live region ──
   function render() {
-    if (collapsed) {
-      el.className = 'collapsed'
-      el.innerHTML = `<button class="toggle" title="expand">◀</button><span class="rail">UI-MORPH · INSPECTOR</span>`
-      el.querySelector('.toggle')!.addEventListener('click', () => {
-        collapsed = false
-        document.documentElement.style.setProperty('--inspector-width', '400px')
-        render()
-      })
-      return
-    }
-    el.className = ''
+    el.querySelector('.chain-count')!.textContent = String(chainKeys().length)
 
     const consented = ctx.morph.consented
     const signals = consented ? ctx.morph.signalsLive() : []
@@ -64,11 +112,11 @@ export function mountInspector(ctx: InspectorCtx): () => void {
     const reasonOf = (detail: string): string => detail.replace(/:?\s*\{.*\}$/, '')
 
     // remember which <details> the user opened before we re-render
-    const open = new Set([...el.querySelectorAll('details[open]')].map((d) => d.getAttribute('data-key')))
+    const open = new Set([...liveEl.querySelectorAll('details[open]')].map((d) => d.getAttribute('data-key')))
 
-    el.innerHTML = `
-      <header><h4>UI-MORPH · INSPECTOR</h4><button class="toggle" title="collapse">▶</button></header>
+    const last = ctx.exchanges()[ctx.exchanges().length - 1]
 
+    liveEl.innerHTML = `
       <section data-insp="signals">
         <h5>1 · signals <span class="dim">(consented, first-party)</span></h5>
         ${
@@ -130,9 +178,34 @@ export function mountInspector(ctx: InspectorCtx): () => void {
         <div class="kv"><span>chain key</span><b class="dim">${esc(`${persona.tier}|${persona.intent}|${persona.traits.join('+') || '-'}|${persona.painPoints.join('+') || '-'}`)}</b></div>
       </section>
 
+      <section data-insp="coldpath">
+        <h5>4b · cold path <span class="dim">(who proposes the ops)</span></h5>
+        <div class="kv"><span>source</span><b>${esc(ctx.coldPath)}</b></div>
+        ${
+          !ctx.live
+            ? '<div class="dim">deterministic mock — authored rules, reproducible. switch to a live model in settings ↓</div>'
+            : !last
+              ? '<div class="dim">no model call yet this page — it fires when a missing chain is predicted</div>'
+              : `<div class="xchg">
+                   <div class="kv"><span>compiling for</span><b>${esc(last.route)} · ${esc(last.model)}</b></div>
+                   <div class="xlabel">sent → <span class="dim">(persona + manifest, nothing else)</span></div>
+                   <pre class="json">${esc(JSON.stringify(last.persona))} + manifest (${last.manifestEntries} entries)</pre>
+                   <div class="xlabel">model returned →</div>
+                   ${
+                     last.error
+                       ? `<div class="op no">✗ ${esc(last.error)}</div>`
+                       : last.returned === undefined
+                         ? '<div class="dim">thinking…</div>'
+                         : `<pre class="json">${esc(JSON.stringify(last.returned, null, 1))}</pre>`
+                   }
+                   <div class="dim">↓ guard verdicts land in decisions / audit</div>
+                 </div>`
+        }
+      </section>
+
       <section data-insp="decisions">
         <h5>5 · decisions <span class="dim">(this page · why each op)</span></h5>
-        ${applied.map((e) => `<div class="op ok">✓ <code>${esc(opOf(e.detail))}</code><span class="why">${esc(whyFor(ctx.route, JSON.parse(opOf(e.detail))))}</span></div>`).join('')}
+        ${applied.map((e) => `<div class="op ok">✓ <code>${esc(opOf(e.detail))}</code><span class="why">${esc(whyFor(ctx.route, tryParse(opOf(e.detail))))}</span></div>`).join('')}
         ${rejected.map((e) => `<div class="op no">✗ <code>${esc(opOf(e.detail))}</code><span class="why">guard: ${esc(reasonOf(e.detail))} · intent: ${esc(whyFor(ctx.route, tryParse(opOf(e.detail))))}</span></div>`).join('')}
         ${applied.length + rejected.length === 0 ? '<div class="dim">no mutations on this page yet</div>' : ''}
       </section>
@@ -141,12 +214,6 @@ export function mountInspector(ctx: InspectorCtx): () => void {
         <h5>6 · audit trail</h5>
         ${ctx.auditLog.slice(-8).map((e) => `<div class="log ${e.kind}">[${e.kind}] ${esc(e.detail)}</div>`).join('') || '<div class="dim">no events yet — opt in, browse, navigate</div>'}
       </section>`
-
-    el.querySelector('.toggle')!.addEventListener('click', () => {
-      collapsed = true
-      document.documentElement.style.setProperty('--inspector-width', '36px')
-      render()
-    })
   }
 
   render()

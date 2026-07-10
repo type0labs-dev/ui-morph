@@ -571,3 +571,60 @@ body {
   text-decoration: none;
   color: inherit;
 }
+
+/* collapsed state (static shell version) */
+#morph-inspector.collapsed .live,
+#morph-inspector.collapsed .settings,
+#morph-inspector.collapsed header h4 {
+  display: none;
+}
+
+/* settings form + cold-path exchange */
+#morph-inspector .settings .frow {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+#morph-inspector .settings label {
+  color: #71717c;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+#morph-inspector .settings input {
+  background: #101016;
+  border: 1px solid #2e2e36;
+  color: #e8e8ec;
+  font: inherit;
+  padding: 4px 8px;
+  width: 100%;
+}
+#morph-inspector .settings .btns {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+#morph-inspector .settings .btns button {
+  background: none;
+  border: 1px solid #2e2e36;
+  color: #c3fffc;
+  font: inherit;
+  font-size: 10px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+#morph-inspector .settings .btns button.use-live {
+  background: #c3fffc;
+  color: #0b0b0e;
+  font-weight: 700;
+}
+#morph-inspector .xlabel {
+  color: #f9e2af;
+  margin-top: 6px;
+}
+#morph-inspector .xchg .json {
+  max-height: 180px;
+  overflow: auto;
+}
