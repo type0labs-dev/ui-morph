@@ -1,27 +1,22 @@
-import type { Intent, Persona, Signals } from './types.ts'
+import type { Intent, Persona, QuantizeRules, Signals } from './types.ts'
 
 // Persona quantizer — deterministic rules, no LLM. Where a threshold does the
 // job, a model call is waste (and non-reproducible). The output space is tiny
 // on purpose: quantized personas are cache keys, and cache keys must collide
 // for the warm path to exist at all.
 
-export interface QuantizeRules {
-  /** map route prefixes / referrer patterns to an intent bucket */
-  intentOf(history: Signals[]): Intent
+export type { QuantizeRules } from './types.ts'
+
+function defaultIntent(history: Signals[]): Intent {
+  const last = history[history.length - 1]
+  if (!last) return 'browse'
+  if (last.revisits >= 2) return 'compare'
+  if (history.length >= 3) return 'evaluate'
+  return 'browse'
 }
 
-const defaultRules: QuantizeRules = {
-  intentOf(history) {
-    const last = history[history.length - 1]
-    if (!last) return 'browse'
-    if (last.revisits >= 2) return 'compare'
-    if (history.length >= 3) return 'evaluate'
-    return 'browse'
-  },
-}
-
-export function quantize(history: Signals[], rules: QuantizeRules = defaultRules): Persona {
-  const traits = new Set<string>()
+export function quantize(history: Signals[], rules: QuantizeRules = {}): Persona {
+  const traits = new Set<string>(rules.traitsOf?.(history) ?? [])
   const painPoints = new Set<string>()
 
   const pages = history.length
@@ -47,7 +42,7 @@ export function quantize(history: Signals[], rules: QuantizeRules = defaultRules
 
   return {
     tier,
-    intent: rules.intentOf(history),
+    intent: (rules.intentOf ?? defaultIntent)(history),
     traits: [...traits].sort(),
     painPoints: [...painPoints].sort(),
   }

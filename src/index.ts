@@ -50,7 +50,7 @@ export class Morph {
   }
 
   persona(): Persona {
-    return quantize(this.history())
+    return quantize(this.history(), this.cfg.quantize)
   }
 
   /**
@@ -59,7 +59,7 @@ export class Morph {
    */
   personaLive(): Persona {
     const history = this.history()
-    return quantize(this.collector ? [...history, this.collector.snapshot()] : history)
+    return quantize(this.collector ? [...history, this.collector.snapshot()] : history, this.cfg.quantize)
   }
 
   /**

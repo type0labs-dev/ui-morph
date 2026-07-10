@@ -121,3 +121,19 @@ test('personaLive equals persona when no page is being observed', () => {
   morph.setConsent(true)
   assert.equal(personaKey(morph.personaLive()), personaKey(morph.persona()))
 })
+
+test('MorphConfig.quantize rules reach persona() and personaLive()', () => {
+  sessionStorage.setItem(
+    'ui-morph:signals',
+    JSON.stringify([
+      { route: '/', referrer: '', device: 'desktop', language: 'en', scrollDepth: 0.5, dwellMs: 20_000, clicked: ['gear-headset'], ignored: [], revisits: 0 },
+    ]),
+  )
+  const morph = new Morph({
+    intents: ['browse'],
+    quantize: { traitsOf: (h) => (h.some((s) => s.clicked.includes('gear-headset')) ? ['gamer'] : []) },
+  })
+  morph.setConsent(true)
+  assert.ok(morph.persona().traits.includes('gamer'))
+  assert.ok(morph.personaLive().traits.includes('gamer'))
+})

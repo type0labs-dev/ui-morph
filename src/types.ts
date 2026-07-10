@@ -47,6 +47,17 @@ export interface Signals {
   revisits: number
 }
 
+// ── Quantizer extension point ────────────────────────────────────────────────
+// Intent buckets and part of the trait vocabulary are site language, not
+// engine language. Defaults cover generic behavior; a site plugs its own here.
+
+export interface QuantizeRules {
+  /** map route / referrer / history patterns to an intent bucket */
+  intentOf?(history: Signals[]): Intent
+  /** site-specific traits (e.g. clicks on gamer gear) — merged with built-ins */
+  traitsOf?(history: Signals[]): string[]
+}
+
 // ── Mutations ────────────────────────────────────────────────────────────────
 // The entire expressive power of the engine. Anything not representable here
 // cannot happen, no matter what the model emits. Ops target `data-morph`
@@ -106,6 +117,8 @@ export interface MorphConfig {
   llm?: LlmConfig
   /** bring-your-own cold path (testing, mock demos, non-OpenAI providers). Wins over `llm`. */
   propose?: (persona: Persona, manifest: PageManifest) => Promise<unknown>
+  /** site-specific quantizer rules (intent buckets, trait vocabulary) */
+  quantize?: QuantizeRules
   /** storage adapter; defaults to localStorage */
   store?: ChainStore
   /** called on every applied / rejected op — the audit trail */

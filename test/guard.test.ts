@@ -116,3 +116,20 @@ test('one page of nothing = generic persona, no assumptions', () => {
   assert.deepEqual(p.traits, [])
   assert.deepEqual(p.painPoints, [])
 })
+
+test('site-specific traitsOf merges with built-in traits, deduped and sorted', () => {
+  const history = [
+    sig({ referrer: 'https://google.com/search' }), // built-in: search-led
+    sig({ clicked: ['gear-headset', 'gear-gpu-dock'] }),
+  ]
+  const p = quantize(history, {
+    traitsOf: (h) => (h.some((s) => s.clicked.some((id) => id.startsWith('gear-'))) ? ['gamer', 'search-led'] : []),
+  })
+  assert.deepEqual(p.traits, ['gamer', 'search-led'])
+})
+
+test('custom intentOf still wins, defaults fill the rest', () => {
+  const p = quantize([sig({})], { intentOf: () => 'accessorize' })
+  assert.equal(p.intent, 'accessorize')
+  assert.deepEqual(p.traits, [])
+})
