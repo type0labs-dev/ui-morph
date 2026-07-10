@@ -2,3 +2,5 @@ node_modules/
 dist/
 demo/dist/
 .env
+e2e/.results/
+playwright-report/
