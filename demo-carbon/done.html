@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Order confirmed — NOVA · ui-morph × Carbon</title>
+</head>
+<body>
+  <div data-morph="theme" hidden></div>
+
+  <cds-header aria-label="NOVA" data-morph="nav">
+    <cds-header-name href="/index.html" prefix="">NOVA</cds-header-name>
+    <cds-header-nav menu-bar-label="NOVA">
+      <cds-header-nav-item href="/index.html">Home</cds-header-nav-item>
+      <cds-header-nav-item href="/products.html">Laptops</cds-header-nav-item>
+      <cds-header-nav-item href="/accessories.html">Gear</cds-header-nav-item>
+      <cds-header-nav-item href="/cart.html">Cart</cds-header-nav-item>
+      <cds-header-nav-item href="#support">Support</cds-header-nav-item>
+    </cds-header-nav>
+  </cds-header>
+
+  <section data-morph="confirmation" class="section">
+    <h1 class="step-title">🎉 Order confirmed</h1>
+    <p>Thanks for the (pretend) purchase — nothing was charged, nothing was sent anywhere.</p>
+    <div data-slot="cart-lines" class="cart-lines"></div>
+    <p class="cart-total" data-slot="cart-total"></p>
+  </section>
+
+  <section data-morph="next-steps" class="section">
+    <div data-morph-variant="setup-guides">
+      <h2>While it ships: setup guides</h2>
+      <p>Migration checklists, battery-care basics and first-boot tips.</p>
+    </div>
+    <div data-morph-variant="more-gear" hidden>
+      <h2>Complete the setup</h2>
+      <div class="grid grid-3" data-slot="upsell"></div>
+    </div>
+  </section>
+
+  <footer data-morph="footer" class="store-footer cols">
+    <div><h4>Shop</h4><a href="/products.html">Laptops</a><a href="/accessories.html">Gear</a></div>
+    <div><h4>Support</h4><a href="#support">Contact</a><a href="#support">Warranty</a></div>
+    <div><h4>Company</h4><a href="#about">About</a></div>
+    <div><h4>Project</h4><a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a><span>MIT demo</span></div>
+  </footer>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

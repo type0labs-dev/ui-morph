@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Payment — NOVA · ui-morph × Carbon</title>
+</head>
+<body>
+  <div data-morph="theme" hidden></div>
+
+  <cds-header aria-label="NOVA" data-morph="nav">
+    <cds-header-name href="/index.html" prefix="">NOVA</cds-header-name>
+    <cds-header-nav menu-bar-label="NOVA">
+      <cds-header-nav-item href="/index.html">Home</cds-header-nav-item>
+      <cds-header-nav-item href="/products.html">Laptops</cds-header-nav-item>
+      <cds-header-nav-item href="/accessories.html">Gear</cds-header-nav-item>
+      <cds-header-nav-item href="/cart.html">Cart</cds-header-nav-item>
+      <cds-header-nav-item href="#support">Support</cds-header-nav-item>
+    </cds-header-nav>
+  </cds-header>
+
+  <section data-morph="payment-methods" class="section">
+    <h1 class="step-title">Checkout · step 2 of 2</h1>
+    <div data-morph-variant="card">
+      <h2>Pay with card</h2>
+      <p>All major cards. (Demo step — no payment happens.)</p>
+    </div>
+    <div data-morph-variant="pix" hidden>
+      <h2>Pay with Pix — 5% off</h2>
+      <p>Instant transfer, extra discount applied. (Demo step — no payment happens.)</p>
+    </div>
+    <div data-morph-variant="installments" hidden>
+      <h2>12× interest-free installments</h2>
+      <p>Split it monthly, zero interest. (Demo step — no payment happens.)</p>
+    </div>
+  </section>
+
+  <section data-morph="order-summary" class="section">
+    <h2>Order summary</h2>
+    <div data-slot="cart-lines" class="cart-lines"></div>
+    <p class="cart-total" data-slot="cart-total"></p>
+  </section>
+
+  <section class="section">
+    <cds-button data-morph="cta-pay" href="/done.html">Place order</cds-button>
+  </section>
+
+  <footer data-morph="footer" class="store-footer cols">
+    <div><h4>Shop</h4><a href="/products.html">Laptops</a><a href="/accessories.html">Gear</a></div>
+    <div><h4>Support</h4><a href="#support">Contact</a><a href="#support">Warranty</a></div>
+    <div><h4>Company</h4><a href="#about">About</a></div>
+    <div><h4>Project</h4><a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a><span>MIT demo</span></div>
+  </footer>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

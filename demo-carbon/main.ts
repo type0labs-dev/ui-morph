@@ -10,7 +10,10 @@ import '@carbon/web-components/es/components/notification/index.js'
 import { Morph, personaKey, type AuditEvent, type LlmConfig } from '../src/index.ts'
 import { coldPathExchanges, livePropose } from './llm-live.ts'
 import { DEMO_QUANTIZE, estimateObjectives, nextRoute } from '../demo/salesman.ts'
-import { MANIFESTS } from './manifests.ts'
+import { manifestFor } from './manifests.ts'
+import { currentSku, renderProductPage } from './product-page.ts'
+import { initFunnel } from './funnel.ts'
+import { logEvent } from './session-log.ts'
 import { mockPropose } from './propose.ts'
 import { mountInspector } from './inspector.ts'
 import { ingestSearchFromUrl, mountSearchBox } from './search.ts'
@@ -50,8 +53,18 @@ const morph = new Morph({
   },
 })
 
-const manifest = MANIFESTS[location.pathname] ?? MANIFESTS['/index.html']!
+// static render precedes the engine: content fills, then chains apply
+if (location.pathname === '/product.html') renderProductPage()
+initFunnel(location.pathname, location.pathname === '/product.html' ? currentSku() : undefined)
+
+const manifest = manifestFor(location.pathname, location.search)
 const route = manifest.route
+
+/** resolve a (possibly ?sku=-parameterized) route string to its manifest */
+const manifestOf = (r: string) => {
+  const [p, q = ''] = r.split('?')
+  return manifestFor(p!, q)
+}
 
 // ── consent banner ──
 function mountConsent() {
@@ -83,12 +96,12 @@ function predictAndPreadapt() {
   const p = morph.personaLive()
   const ranked = estimateObjectives(p)
   const targets = [...new Set([nextRoute(ranked, route), nextRoute(ranked.slice(1), route), route])].filter(
-    (r): r is string => !!r && !!MANIFESTS[r],
+    (r): r is string => !!r,
   )
   const prediction = `${personaKey(p)}→${targets.join(',')}`
   if (prediction === lastPrediction) return
   lastPrediction = prediction
-  for (const r of targets) void morph.precompile(MANIFESTS[r]!)
+  for (const r of targets) void morph.precompile(manifestOf(r))
 }
 
 ingestSearchFromUrl() // ad-landing ?utm_term → site-owned first-party store

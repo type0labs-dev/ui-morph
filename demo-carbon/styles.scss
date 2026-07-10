@@ -633,3 +633,36 @@ body {
   color: #f9a86a;
   padding: 2px 0;
 }
+
+/* ── funnel steps ── */
+.step-title {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  margin-bottom: 12px;
+}
+.cart-lines {
+  margin: 12px 0;
+}
+.cart-line {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--cds-border-subtle-01);
+}
+.cart-line img {
+  width: 72px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  margin: 0;
+}
+.cart-total {
+  margin-top: 12px;
+  font-size: 1.15rem;
+}
+.dim-note {
+  color: var(--cds-text-helper);
+}
+.dim-note a {
+  color: var(--cds-link-primary);
+}
