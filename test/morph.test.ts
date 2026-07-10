@@ -1,7 +1,7 @@
 import { test, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { Morph } from '../src/index.ts'
-import { chainKey } from '../src/cache.ts'
+import { chainKey, nearestChain } from '../src/cache.ts'
 import { manifestHash } from '../src/schema.ts'
 import { personaKey, type AuditEvent, type Chain, type ChainStore, type PageManifest } from '../src/types.ts'
 
@@ -150,4 +150,51 @@ test('signalsLive returns the stored history when no page is being observed', ()
   const morph = new Morph({ intents: ['browse'] })
   morph.setConsent(true)
   assert.deepEqual(morph.signalsLive(), [entry])
+})
+
+test('start-time fallback: a similar chain applies when the exact key misses', async () => {
+  // no DOM here — exercise the lookup via a store that records reads
+  const store = memoryStore()
+  store.list = async (prefix: string) => [...store.chains.keys()].filter((k) => k.startsWith(prefix))
+  // chain cached for the YOUNG persona on this route
+  const youngKey = chainKey('narrow|browse|search-led+technical|-', manifestB.route, manifestHash(manifestB))
+  const chain: Chain = {
+    personaKey: 'narrow|browse|search-led+technical|-',
+    route: manifestB.route,
+    manifestHash: manifestHash(manifestB),
+    ops: [{ op: 'show', target: 'gear-grid' }],
+    source: 'llm',
+    createdAt: 1,
+  }
+  store.chains.set(youngKey, chain)
+
+  const grown = 'defined|evaluate|scanner+search-led+technical|ignored-cta'
+  const found = await nearestChain(store, grown, manifestB.route, manifestHash(manifestB), 0.5)
+  assert.ok(found, 'similar chain found')
+  assert.equal(found.chain.personaKey, 'narrow|browse|search-led+technical|-')
+  assert.ok(found.score >= 0.7)
+
+  const conflicting = await nearestChain(
+    store,
+    'defined|browse|color-white+comfort+gift-buyer+thin-focus|-',
+    manifestB.route,
+    manifestHash(manifestB),
+    0.5,
+  )
+  assert.equal(conflicting, null, 'conflicting persona does not cross-match')
+})
+
+test('nearestChain: deterministic tie-break by key, skips stores without list', async () => {
+  const bare = memoryStore() // no list()
+  assert.equal(await nearestChain(bare, 'a|b|-|-', '/x', 'h', 0.5), null)
+
+  const store = memoryStore()
+  store.list = async (prefix: string) => [...store.chains.keys()].filter((k) => k.startsWith(prefix))
+  const mk = (pk: string): Chain => ({ personaKey: pk, route: '/x', manifestHash: 'h', ops: [], source: 'llm', createdAt: 1 })
+  // two candidates with identical scores — lexicographic key wins, every run
+  store.chains.set(chainKey('narrow|browse|technical+zeta|-', '/x', 'h'), mk('narrow|browse|technical+zeta|-'))
+  store.chains.set(chainKey('narrow|browse|alpha+technical|-', '/x', 'h'), mk('narrow|browse|alpha+technical|-'))
+  const found = await nearestChain(store, 'narrow|browse|beta+technical|-', '/x', 'h', 0.3)
+  assert.ok(found)
+  assert.equal(found.chain.personaKey, 'narrow|browse|alpha+technical|-')
 })

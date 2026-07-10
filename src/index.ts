@@ -1,4 +1,4 @@
-import { chainKey, localStore } from './cache.ts'
+import { chainKey, localStore, nearestChain } from './cache.ts'
 import { applyOps } from './apply.ts'
 import { collectSignals, type SignalCollector } from './signals.ts'
 import { guard, isChainValid, manifestHash } from './schema.ts'
@@ -99,6 +99,17 @@ export class Morph {
       const applied = applyOps(chain.ops)
       this.audit('chain-hit', `${applied.length} ops replayed, 0 LLM calls`)
       applied.forEach((op) => this.audit('op-applied', JSON.stringify(op)))
+    } else {
+      // exact miss — early-session personas drift on every page ("the persona
+      // treadmill"), so fall back to the nearest cached persona on this same
+      // route+manifest. Its ops were guard-validated against this manifest.
+      // The exact-key compile below still fires: the cache converges.
+      const similar = await nearestChain(store, personaKey(p), manifest.route, manifestHash(manifest), this.cfg.similarity ?? 0.5)
+      if (similar) {
+        const applied = applyOps(similar.chain.ops)
+        this.audit('chain-hit', `similar (${similar.score.toFixed(2)} ≈ ${similar.chain.personaKey}): ${applied.length} ops replayed, 0 LLM calls`)
+        applied.forEach((op) => this.audit('op-applied', JSON.stringify(op)))
+      }
     }
 
     this.collector = collectSignals(document, new Set(manifest.entries.filter((e) => e.protected).map((e) => e.id)))

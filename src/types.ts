@@ -119,6 +119,12 @@ export interface MorphConfig {
   propose?: (persona: Persona, manifest: PageManifest) => Promise<unknown>
   /** site-specific quantizer rules (intent buckets, trait vocabulary) */
   quantize?: QuantizeRules
+  /**
+   * Similarity threshold for the read-fallback: on an exact-key miss, the
+   * nearest cached chain for the same route+manifest applies if its persona
+   * scores ≥ this. Default 0.5; set 1 to require exact matches only.
+   */
+  similarity?: number
   /** storage adapter; defaults to localStorage */
   store?: ChainStore
   /** called on every applied / rejected op — the audit trail */
@@ -128,6 +134,12 @@ export interface MorphConfig {
 export interface ChainStore {
   get(key: string): Promise<Chain | null>
   put(key: string, chain: Chain): Promise<void>
+  /**
+   * Optional: enumerate stored keys under a prefix. Enables the similarity
+   * read-fallback; stores without it (e.g. simple remote stubs) just skip
+   * that fallback — exact matching still works.
+   */
+  list?(prefix: string): Promise<string[]>
 }
 
 export interface AuditEvent {
