@@ -8,15 +8,21 @@
 <body>
   <div data-morph="theme" hidden></div>
 
-  <nav data-morph="nav" class="store-nav">
-    <strong>NOVA</strong>
-    <span class="links"><a href="/index.html">HOME</a> <a href="/products.html">LAPTOPS</a> <a href="/accessories.html">GEAR</a></span>
-  </nav>
+  <cds-header aria-label="NOVA" data-morph="nav">
+    <cds-header-name href="/index.html" prefix="">NOVA</cds-header-name>
+    <cds-header-nav menu-bar-label="NOVA">
+      <cds-header-nav-item href="/index.html">Home</cds-header-nav-item>
+      <cds-header-nav-item href="/products.html">Laptops</cds-header-nav-item>
+      <cds-header-nav-item href="/accessories.html">Gear</cds-header-nav-item>
+      <cds-header-nav-item href="#deals">Deals</cds-header-nav-item>
+      <cds-header-nav-item href="#support">Support</cds-header-nav-item>
+    </cds-header-nav>
+  </cds-header>
 
   <header data-morph="hero" class="hero">
     <div data-morph-variant="visual">
       <h1>The lineup.</h1>
-      <p>Three sizes. One obsession.</p>
+      <p>Six configurations. Three sizes. One obsession.</p>
     </div>
     <div data-morph-variant="technical" hidden>
       <h1>Compare by numbers.</h1>
@@ -24,12 +30,24 @@
     </div>
   </header>
 
+  <section data-morph="deals-strip" class="section strip" id="deals">
+    <h2>Deals of the week</h2>
+    <div class="strip-row">
+      <cds-tile><cds-tag type="red" size="sm">-20%</cds-tag><h3>NOVA 15</h3><p><s>$1,699</s> <b>$1,359</b></p></cds-tile>
+      <cds-tile><cds-tag type="red" size="sm">-10%</cds-tag><h3>NOVA 13 Air</h3><p><s>$1,099</s> <b>$989</b></p></cds-tile>
+      <cds-tile><cds-tag type="red" size="sm">bundle</cds-tag><h3>17 + GPU Dock</h3><p><b>save $240</b></p></cds-tile>
+    </div>
+  </section>
+
   <section data-morph="product-grid" class="section">
-    <h2>Models</h2>
-    <div class="grid">
-      <cds-tile><h3>NOVA 13</h3><p>1.1kg · 13.4″ · from $1,299</p><cds-button size="sm" data-morph="cta-buy-13" href="#">Buy</cds-button></cds-tile>
-      <cds-tile><h3>NOVA 15</h3><p>1.5kg · 15.6″ · from $1,699</p><cds-button size="sm" data-morph="cta-buy-15" href="#">Buy</cds-button></cds-tile>
-      <cds-tile><h3>NOVA 17</h3><p>2.1kg · 17.3″ · from $2,199</p><cds-button size="sm" data-morph="cta-buy-17" href="#">Buy</cds-button></cds-tile>
+    <h2>All models</h2>
+    <div class="grid grid-3">
+      <cds-tile><img src="/img/laptop-nova13.jpg" alt="NOVA 13" /><div class="tags"><cds-tag size="sm" type="blue">ultralight</cds-tag></div><h3>NOVA 13</h3><p>1.1kg · 13.4″ · 10-core · 32GB · from $1,299</p><cds-button size="sm" data-morph="cta-buy-13" href="#">Buy</cds-button></cds-tile>
+      <cds-tile><img src="/img/laptop-nova13-air.jpg" alt="NOVA 13 Air" /><div class="tags"><cds-tag size="sm" type="teal">fanless</cds-tag></div><h3>NOVA 13 Air</h3><p>0.9kg · 13.4″ · 8-core · 16GB · from $1,099</p><cds-button size="sm" data-morph="cta-buy-13-air" href="#">Buy</cds-button></cds-tile>
+      <cds-tile><img src="/img/laptop-nova15.jpg" alt="NOVA 15" /><div class="tags"><cds-tag size="sm" type="blue">best seller</cds-tag></div><h3>NOVA 15</h3><p>1.5kg · 15.6″ · 12-core · 64GB · from $1,699</p><cds-button size="sm" data-morph="cta-buy-15" href="#">Buy</cds-button></cds-tile>
+      <cds-tile><img src="/img/laptop-nova15-pro.jpg" alt="NOVA 15 Pro" /><div class="tags"><cds-tag size="sm" type="purple">RTX-class</cds-tag></div><h3>NOVA 15 Pro</h3><p>1.7kg · 15.6″ · 12-core · 64GB · dGPU · from $2,099</p><cds-button size="sm" data-morph="cta-buy-15-pro" href="#">Buy</cds-button></cds-tile>
+      <cds-tile><img src="/img/laptop-nova17.jpg" alt="NOVA 17" /><div class="tags"><cds-tag size="sm" type="blue">desktop-class</cds-tag></div><h3>NOVA 17</h3><p>2.1kg · 17.3″ · 12-core · 64GB · from $2,199</p><cds-button size="sm" data-morph="cta-buy-17" href="#">Buy</cds-button></cds-tile>
+      <cds-tile><img src="/img/laptop-nova17-creator.jpg" alt="NOVA 17 Creator" /><div class="tags"><cds-tag size="sm" type="purple">100% DCI-P3</cds-tag></div><h3>NOVA 17 Creator</h3><p>2.2kg · 17.3″ · 12-core · 64GB · dGPU · from $2,599</p><cds-button size="sm" data-morph="cta-buy-17-creator" href="#">Buy</cds-button></cds-tile>
     </div>
   </section>
 
@@ -40,37 +58,66 @@
         <cds-structured-list-header-row>
           <cds-structured-list-header-cell></cds-structured-list-header-cell>
           <cds-structured-list-header-cell>13</cds-structured-list-header-cell>
+          <cds-structured-list-header-cell>13 Air</cds-structured-list-header-cell>
           <cds-structured-list-header-cell>15</cds-structured-list-header-cell>
+          <cds-structured-list-header-cell>15 Pro</cds-structured-list-header-cell>
           <cds-structured-list-header-cell>17</cds-structured-list-header-cell>
+          <cds-structured-list-header-cell>17 Creator</cds-structured-list-header-cell>
         </cds-structured-list-header-row>
       </cds-structured-list-head>
       <cds-structured-list-body>
-        <cds-structured-list-row><cds-structured-list-cell>CPU</cds-structured-list-cell><cds-structured-list-cell>10-core</cds-structured-list-cell><cds-structured-list-cell>12-core</cds-structured-list-cell><cds-structured-list-cell>12-core</cds-structured-list-cell></cds-structured-list-row>
-        <cds-structured-list-row><cds-structured-list-cell>RAM max</cds-structured-list-cell><cds-structured-list-cell>32GB</cds-structured-list-cell><cds-structured-list-cell>64GB</cds-structured-list-cell><cds-structured-list-cell>64GB</cds-structured-list-cell></cds-structured-list-row>
-        <cds-structured-list-row><cds-structured-list-cell>Battery</cds-structured-list-cell><cds-structured-list-cell>63Wh</cds-structured-list-cell><cds-structured-list-cell>84Wh</cds-structured-list-cell><cds-structured-list-cell>99Wh</cds-structured-list-cell></cds-structured-list-row>
-        <cds-structured-list-row><cds-structured-list-cell>Ports</cds-structured-list-cell><cds-structured-list-cell>2×TB4</cds-structured-list-cell><cds-structured-list-cell>3×TB4 + HDMI</cds-structured-list-cell><cds-structured-list-cell>3×TB4 + HDMI + SD</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>CPU</cds-structured-list-cell><cds-structured-list-cell>10-core</cds-structured-list-cell><cds-structured-list-cell>8-core</cds-structured-list-cell><cds-structured-list-cell>12-core</cds-structured-list-cell><cds-structured-list-cell>12-core</cds-structured-list-cell><cds-structured-list-cell>12-core</cds-structured-list-cell><cds-structured-list-cell>12-core</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>RAM max</cds-structured-list-cell><cds-structured-list-cell>32GB</cds-structured-list-cell><cds-structured-list-cell>16GB</cds-structured-list-cell><cds-structured-list-cell>64GB</cds-structured-list-cell><cds-structured-list-cell>64GB</cds-structured-list-cell><cds-structured-list-cell>64GB</cds-structured-list-cell><cds-structured-list-cell>64GB</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>GPU</cds-structured-list-cell><cds-structured-list-cell>iGPU</cds-structured-list-cell><cds-structured-list-cell>iGPU</cds-structured-list-cell><cds-structured-list-cell>iGPU</cds-structured-list-cell><cds-structured-list-cell>dGPU</cds-structured-list-cell><cds-structured-list-cell>iGPU</cds-structured-list-cell><cds-structured-list-cell>dGPU</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>Battery</cds-structured-list-cell><cds-structured-list-cell>63Wh</cds-structured-list-cell><cds-structured-list-cell>52Wh</cds-structured-list-cell><cds-structured-list-cell>84Wh</cds-structured-list-cell><cds-structured-list-cell>84Wh</cds-structured-list-cell><cds-structured-list-cell>99Wh</cds-structured-list-cell><cds-structured-list-cell>99Wh</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>Ports</cds-structured-list-cell><cds-structured-list-cell>2×TB4</cds-structured-list-cell><cds-structured-list-cell>2×TB4</cds-structured-list-cell><cds-structured-list-cell>3×TB4 + HDMI</cds-structured-list-cell><cds-structured-list-cell>3×TB4 + HDMI</cds-structured-list-cell><cds-structured-list-cell>3×TB4 + HDMI + SD</cds-structured-list-cell><cds-structured-list-cell>3×TB4 + HDMI + SD</cds-structured-list-cell></cds-structured-list-row>
       </cds-structured-list-body>
     </cds-structured-list>
   </section>
 
   <section data-morph="gear-teaser" class="section">
     <h2>Complete your setup</h2>
-    <div class="grid">
-      <cds-tile><h3>VOID Headset</h3><p>Wireless · 38h battery</p><cds-button size="sm" kind="tertiary" data-morph="gear-headset" href="/accessories.html">See gear</cds-button></cds-tile>
-      <cds-tile><h3>CORE GPU Dock</h3><p>eGPU over TB4</p><cds-button size="sm" kind="tertiary" data-morph="gear-gpu-dock" href="/accessories.html">See gear</cds-button></cds-tile>
+    <div class="grid grid-3">
+      <cds-tile><img src="/img/gear-headset.jpg" alt="VOID Headset" /><h3>VOID Headset</h3><p>Wireless · 38h battery</p><cds-button size="sm" kind="tertiary" data-morph="gear-headset" href="/accessories.html">See gear</cds-button></cds-tile>
+      <cds-tile><img src="/img/gear-dock.jpg" alt="CORE GPU Dock" /><h3>CORE GPU Dock</h3><p>eGPU over TB4</p><cds-button size="sm" kind="tertiary" data-morph="gear-gpu-dock" href="/accessories.html">See gear</cds-button></cds-tile>
+      <cds-tile><img src="/img/gear-controller.jpg" alt="APEX Controller" /><h3>APEX Controller</h3><p>Hall-effect sticks · BT/2.4GHz</p><cds-button size="sm" kind="tertiary" data-morph="gear-controller" href="/accessories.html">See gear</cds-button></cds-tile>
     </div>
   </section>
 
-  <section data-morph="reviews" class="section">
-    <h2>Reviews</h2>
-    <blockquote>“Best keyboard in its class, and the thermals hold 5.0GHz sustained.” — laptopbench.io</blockquote>
+  <section data-morph="testimonials" class="section">
+    <h2>Loved by people like you</h2>
+    <div class="grid grid-3">
+      <cds-tile><blockquote>“Best keyboard in its class.”</blockquote><p class="who">— laptopbench.io</p></cds-tile>
+      <cds-tile><blockquote>“The 15 replaced my desktop for good.”</blockquote><p class="who">— Théo, developer</p></cds-tile>
+      <cds-tile><blockquote>“Support answered in four minutes.”</blockquote><p class="who">— Carla, photographer</p></cds-tile>
+    </div>
+  </section>
+
+  <section data-morph="articles-teaser" class="section">
+    <h2>From the lab</h2>
+    <div class="grid grid-3">
+      <cds-tile><cds-tag type="cyan" size="sm">benchmark</cds-tag><h3>Thermals: 5.0GHz sustained on the 17</h3><p>Full curve, 40min load, dBA plot.</p></cds-tile>
+      <cds-tile><cds-tag type="cyan" size="sm">deep dive</cds-tag><h3>iGPU vs dGPU: when the Pro pays off</h3><p>Blender, Resolve and game FPS, measured.</p></cds-tile>
+      <cds-tile><cds-tag type="cyan" size="sm">guide</cds-tag><h3>Choosing RAM: 16 / 32 / 64GB in practice</h3><p>Real workload memory ceilings.</p></cds-tile>
+    </div>
+  </section>
+
+  <section data-morph="newsletter" class="section band">
+    <h2>Stay in the loop</h2>
+    <p>Benchmarks and launches, once a month. No noise.</p>
+    <div class="band-row"><input type="email" placeholder="you@example.com" aria-label="email" /><cds-button data-morph="cta-newsletter" size="sm">Subscribe</cds-button></div>
   </section>
 
   <section data-morph="promo-banner" class="section">
     <cds-inline-notification kind="info" title="Winter sale" subtitle="up to 20% off, this week" hide-close-button low-contrast></cds-inline-notification>
   </section>
 
-  <footer data-morph="footer" class="store-footer">MIT demo · <a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a> × IBM Carbon</footer>
+  <footer data-morph="footer" class="store-footer cols">
+    <div><h4>Shop</h4><a href="/products.html">Laptops</a><a href="/accessories.html">Gear</a><a href="#deals">Deals</a></div>
+    <div><h4>Support</h4><a href="#support">Contact</a><a href="#support">Drivers</a><a href="#support">Warranty</a></div>
+    <div><h4>Company</h4><a href="#about">About</a><a href="#about">Careers</a><a href="#about">Press</a></div>
+    <div><h4>Project</h4><a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a><a href="https://carbondesignsystem.com">Carbon DS</a><span>MIT demo</span></div>
+  </footer>
 
   <script type="module" src="./main.ts"></script>
 </body>

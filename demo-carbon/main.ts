@@ -1,4 +1,5 @@
 import './styles.scss'
+import '@carbon/web-components/es/components/ui-shell/index.js'
 import '@carbon/web-components/es/components/button/index.js'
 import '@carbon/web-components/es/components/tile/index.js'
 import '@carbon/web-components/es/components/tag/index.js'
@@ -8,7 +9,7 @@ import '@carbon/web-components/es/components/notification/index.js'
 
 import { Morph, personaKey, type AuditEvent } from '../src/index.ts'
 import { DEMO_QUANTIZE, estimateObjectives, nextRoute } from '../demo/salesman.ts'
-import { MANIFESTS } from '../demo/manifests.ts'
+import { MANIFESTS } from './manifests.ts'
 import { mockPropose } from './propose.ts'
 import { mountInspector } from './inspector.ts'
 
@@ -26,7 +27,9 @@ let renderInspector: () => void = () => {}
 
 const morph = new Morph({
   intents: ['browse', 'evaluate', 'compare'],
-  budget: 5,
+  // 7, not the engine's default 5: the denser 3.0 vocabulary makes six
+  // legitimate ops common for a defined persona (see carbon-demo-spec)
+  budget: 7,
   quantize: DEMO_QUANTIZE,
   ...(llmRaw ? { llm: JSON.parse(llmRaw) } : { propose: mockPropose }),
   onAudit(e) {

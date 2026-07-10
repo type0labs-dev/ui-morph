@@ -48,26 +48,36 @@ cds-tag:not(:defined) {
   display: none !important;
 }
 
-.store-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 24px;
-  border-bottom: 1px solid var(--cds-border-subtle-01);
-  background: var(--cds-layer-01);
+/* Carbon UI Shell header is position:fixed full-width — keep it off the
+   inspector and push the page below it */
+cds-header {
+  inline-size: calc(100% - var(--inspector-width, 400px));
 }
-.store-nav .links a {
-  margin-left: 16px;
-  color: var(--cds-link-primary);
-  text-decoration: none;
-  font-size: 13px;
-  letter-spacing: 0.08em;
+body {
+  padding-top: 3rem;
 }
 
 .hero {
   max-width: 880px;
   margin: 0 auto;
   padding: 64px 24px;
+}
+.hero-photo {
+  max-width: none;
+  padding: 0;
+  background-size: cover;
+  background-position: center;
+}
+.hero-photo .hero-inner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 120px 24px;
+  /* scrim so copy holds on any photo, any theme */
+  background: linear-gradient(90deg, color-mix(in srgb, var(--cds-background) 82%, transparent) 45%, transparent);
+}
+.hero-photo h1,
+.hero-photo p {
+  max-width: 27em;
 }
 .hero h1 {
   @include type.type-style('fluid-heading-05', true);
@@ -101,6 +111,56 @@ cds-tag:not(:defined) {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
+.grid img,
+.strip-row img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 12px;
+}
+.grid blockquote {
+  font-style: italic;
+  color: var(--cds-text-secondary);
+}
+.grid .who {
+  margin-top: 8px;
+  color: var(--cds-text-helper);
+  font-size: 13px;
+}
+.strip-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.strip-row cds-tile h3 {
+  margin-top: 8px;
+}
+.strip-row s {
+  color: var(--cds-text-helper);
+}
+
+.band {
+  background: var(--cds-layer-01);
+  border: 1px solid var(--cds-border-subtle-01);
+  margin-top: 32px;
+}
+.band p {
+  color: var(--cds-text-secondary);
+}
+.band-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.band-row input {
+  flex: 1;
+  max-width: 320px;
+  padding: 8px 12px;
+  border: 1px solid var(--cds-border-strong-01);
+  background: var(--cds-field-01);
+  color: var(--cds-text-primary);
+}
 .grid cds-tile h3 {
   @include type.type-style('heading-02');
 }
@@ -122,6 +182,26 @@ cds-tag:not(:defined) {
 }
 .store-footer a {
   color: var(--cds-link-primary);
+}
+.store-footer.cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 24px;
+  border-top: 1px solid var(--cds-border-subtle-01);
+  margin-top: 32px;
+}
+.store-footer.cols h4 {
+  color: var(--cds-text-secondary);
+  margin-bottom: 8px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.store-footer.cols a,
+.store-footer.cols span {
+  display: block;
+  padding: 2px 0;
+  text-decoration: none;
 }
 
 /* emphasis levels the engine can apply — accent ring on Carbon tokens */

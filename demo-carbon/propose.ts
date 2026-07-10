@@ -31,10 +31,17 @@ function decide(persona: Persona, manifest: PageManifest): ProposedOp[] {
     if (has('compat-table')) out.push({ op: { op: 'show', target: 'compat-table' }, why: 'technical persona → compatibility matrix upfront' })
     if (has('specs-teaser')) out.push({ op: { op: 'emphasize', target: 'specs-teaser', level: 'strong' }, why: 'technical persona → specs are the hook' })
   }
+  if (technical && has('articles-teaser') && has('testimonials'))
+    out.push({
+      op: { op: 'reorder', target: 'articles-teaser', before: 'testimonials' },
+      why: 'preferred content pattern: technical > social proof (sketch 02)',
+    })
   if (persona.traits.includes('gamer') && has('gear-grid'))
     out.push({ op: { op: 'emphasize', target: 'gear-grid', level: 'strong' }, why: 'gamer trait → gear first' })
-  if (persona.painPoints.includes('ignored-cta') && has('promo-banner'))
-    out.push({ op: { op: 'hide', target: 'promo-banner' }, why: 'ignored-cta pain → cut promotional noise' })
+  if (persona.painPoints.includes('ignored-cta')) {
+    if (has('promo-banner')) out.push({ op: { op: 'hide', target: 'promo-banner' }, why: 'ignored-cta pain → cut promotional noise' })
+    if (has('newsletter')) out.push({ op: { op: 'hide', target: 'newsletter' }, why: 'ignored-cta pain → this visitor does not want CTAs' })
+  }
   if (persona.intent === 'compare' && has('reviews'))
     out.push({ op: { op: 'reorder', target: 'reviews', before: 'promo-banner' }, why: 'compare intent → social proof higher' })
   return out

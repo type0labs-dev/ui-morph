@@ -8,26 +8,56 @@
 <body>
   <div data-morph="theme" hidden></div>
 
-  <nav data-morph="nav" class="store-nav">
-    <strong>NOVA</strong>
-    <span class="links"><a href="/index.html">HOME</a> <a href="/products.html">LAPTOPS</a> <a href="/accessories.html">GEAR</a></span>
-  </nav>
+  <cds-header aria-label="NOVA" data-morph="nav">
+    <cds-header-name href="/index.html" prefix="">NOVA</cds-header-name>
+    <cds-header-nav menu-bar-label="NOVA">
+      <cds-header-nav-item href="/index.html">Home</cds-header-nav-item>
+      <cds-header-nav-item href="/products.html">Laptops</cds-header-nav-item>
+      <cds-header-nav-item href="/accessories.html">Gear</cds-header-nav-item>
+      <cds-header-nav-item href="#deals">Deals</cds-header-nav-item>
+      <cds-header-nav-item href="#support">Support</cds-header-nav-item>
+    </cds-header-nav>
+  </cds-header>
 
-  <header data-morph="hero" class="hero">
-    <div data-morph-variant="visual">
-      <h1>Machines that feel like magic.</h1>
-      <p>Thin. Silent. Beautiful. The laptop you'll want on your desk.</p>
+  <header data-morph="hero" class="hero hero-photo" style="background-image: url('/img/hero-home.jpg')">
+    <div class="hero-inner">
+      <div data-morph-variant="visual">
+        <h1>Machines that feel like magic.</h1>
+        <p>Thin. Silent. Beautiful. The laptop you'll want on your desk.</p>
+      </div>
+      <div data-morph-variant="technical" hidden>
+        <h1>64GB LPDDR5X · 12-core · 99Wh</h1>
+        <p>Full spec sheets, thermal curves and benchmark data. No marketing adjectives.</p>
+      </div>
+      <cds-button data-morph="cta-hero" href="/products.html">See the lineup</cds-button>
     </div>
-    <div data-morph-variant="technical" hidden>
-      <h1>64GB LPDDR5X · 12-core · 99Wh</h1>
-      <p>Full spec sheets, thermal curves and benchmark data. No marketing adjectives.</p>
-    </div>
-    <cds-button data-morph="cta-hero" href="/products.html">See the lineup</cds-button>
   </header>
 
-  <section data-morph="testimonials" class="section">
-    <h2>Loved by people like you</h2>
-    <blockquote>“I stopped thinking about my machine. It just disappears.” — Ana, designer</blockquote>
+  <section data-morph="deals-strip" class="section strip" id="deals">
+    <h2>Deals of the week</h2>
+    <div class="strip-row">
+      <cds-tile><cds-tag type="red" size="sm">-20%</cds-tag><h3>NOVA 15</h3><p><s>$1,699</s> <b>$1,359</b></p></cds-tile>
+      <cds-tile><cds-tag type="red" size="sm">-15%</cds-tag><h3>VOID Headset</h3><p><s>$199</s> <b>$169</b></p></cds-tile>
+      <cds-tile><cds-tag type="red" size="sm">bundle</cds-tag><h3>17 + GPU Dock</h3><p><b>save $240</b></p></cds-tile>
+    </div>
+  </section>
+
+  <section data-morph="category-tiles" class="section">
+    <h2>Shop by category</h2>
+    <div class="grid grid-3">
+      <cds-clickable-tile href="/products.html"><img src="/img/cat-laptops.jpg" alt="Laptops" /><h3>Laptops</h3><p>Six models, three sizes</p></cds-clickable-tile>
+      <cds-clickable-tile href="/accessories.html"><img src="/img/gear-controller.jpg" alt="Gear" /><h3>Gear</h3><p>Headsets, docks, hubs</p></cds-clickable-tile>
+      <cds-clickable-tile href="/accessories.html"><img src="/img/gear-keyboard.jpg" alt="Workspace" /><h3>Workspace</h3><p>Keyboards and setups</p></cds-clickable-tile>
+    </div>
+  </section>
+
+  <section data-morph="featured-grid" class="section">
+    <h2>Featured</h2>
+    <div class="grid grid-3">
+      <cds-tile><img src="/img/laptop-nova13.jpg" alt="NOVA 13" /><h3>NOVA 13</h3><p>1.1kg · 13.4″ · from $1,299</p><cds-button size="sm" href="/products.html">Details</cds-button></cds-tile>
+      <cds-tile><img src="/img/laptop-nova15.jpg" alt="NOVA 15" /><h3>NOVA 15</h3><p>1.5kg · 15.6″ · from $1,699</p><cds-button size="sm" href="/products.html">Details</cds-button></cds-tile>
+      <cds-tile><img src="/img/laptop-nova17.jpg" alt="NOVA 17" /><h3>NOVA 17</h3><p>2.1kg · 17.3″ · from $2,199</p><cds-button size="sm" href="/products.html">Details</cds-button></cds-tile>
+    </div>
   </section>
 
   <section data-morph="specs-teaser" class="section">
@@ -37,15 +67,45 @@
         <cds-structured-list-row><cds-structured-list-cell>CPU</cds-structured-list-cell><cds-structured-list-cell>12-core, 5.1GHz boost</cds-structured-list-cell></cds-structured-list-row>
         <cds-structured-list-row><cds-structured-list-cell>Memory</cds-structured-list-cell><cds-structured-list-cell>up to 64GB LPDDR5X</cds-structured-list-cell></cds-structured-list-row>
         <cds-structured-list-row><cds-structured-list-cell>Battery</cds-structured-list-cell><cds-structured-list-cell>99Wh · 18h real-world</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>Display</cds-structured-list-cell><cds-structured-list-cell>120Hz · 100% DCI-P3 · 600 nits</cds-structured-list-cell></cds-structured-list-row>
       </cds-structured-list-body>
     </cds-structured-list>
+  </section>
+
+  <section data-morph="testimonials" class="section">
+    <h2>Loved by people like you</h2>
+    <div class="grid grid-3">
+      <cds-tile><blockquote>“I stopped thinking about my machine. It just disappears.”</blockquote><p class="who">— Ana, designer</p></cds-tile>
+      <cds-tile><blockquote>“Battery outlasts my workday, every day.”</blockquote><p class="who">— Rafa, consultant</p></cds-tile>
+      <cds-tile><blockquote>“Quietest laptop I've ever owned.”</blockquote><p class="who">— Mia, writer</p></cds-tile>
+    </div>
+  </section>
+
+  <section data-morph="articles-teaser" class="section">
+    <h2>From the lab</h2>
+    <div class="grid grid-3">
+      <cds-tile><cds-tag type="cyan" size="sm">benchmark</cds-tag><h3>NOVA 17 thermals: 5.0GHz sustained, measured</h3><p>Full curve, 40min load, dBA plot.</p></cds-tile>
+      <cds-tile><cds-tag type="cyan" size="sm">teardown</cds-tag><h3>What 64GB LPDDR5X changes in real workloads</h3><p>Compile times, VM density, RAW previews.</p></cds-tile>
+      <cds-tile><cds-tag type="cyan" size="sm">guide</cds-tag><h3>eGPU on TB4: bandwidth, latency, gotchas</h3><p>Numbers from the CORE dock, not the brochure.</p></cds-tile>
+    </div>
+  </section>
+
+  <section data-morph="newsletter" class="section band">
+    <h2>Stay in the loop</h2>
+    <p>Benchmarks and launches, once a month. No noise.</p>
+    <div class="band-row"><input type="email" placeholder="you@example.com" aria-label="email" /><cds-button data-morph="cta-newsletter" size="sm">Subscribe</cds-button></div>
   </section>
 
   <section data-morph="promo-banner" class="section">
     <cds-inline-notification kind="info" title="Winter sale" subtitle="up to 20% off, this week" hide-close-button low-contrast></cds-inline-notification>
   </section>
 
-  <footer data-morph="footer" class="store-footer">MIT demo · <a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a> × IBM Carbon</footer>
+  <footer data-morph="footer" class="store-footer cols">
+    <div><h4>Shop</h4><a href="/products.html">Laptops</a><a href="/accessories.html">Gear</a><a href="#deals">Deals</a></div>
+    <div><h4>Support</h4><a href="#support">Contact</a><a href="#support">Drivers</a><a href="#support">Warranty</a></div>
+    <div><h4>Company</h4><a href="#about">About</a><a href="#about">Careers</a><a href="#about">Press</a></div>
+    <div><h4>Project</h4><a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a><a href="https://carbondesignsystem.com">Carbon DS</a><span>MIT demo</span></div>
+  </footer>
 
   <script type="module" src="./main.ts"></script>
 </body>

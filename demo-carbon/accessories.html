@@ -8,10 +8,16 @@
 <body>
   <div data-morph="theme" hidden></div>
 
-  <nav data-morph="nav" class="store-nav">
-    <strong>NOVA</strong>
-    <span class="links"><a href="/index.html">HOME</a> <a href="/products.html">LAPTOPS</a> <a href="/accessories.html">GEAR</a></span>
-  </nav>
+  <cds-header aria-label="NOVA" data-morph="nav">
+    <cds-header-name href="/index.html" prefix="">NOVA</cds-header-name>
+    <cds-header-nav menu-bar-label="NOVA">
+      <cds-header-nav-item href="/index.html">Home</cds-header-nav-item>
+      <cds-header-nav-item href="/products.html">Laptops</cds-header-nav-item>
+      <cds-header-nav-item href="/accessories.html">Gear</cds-header-nav-item>
+      <cds-header-nav-item href="#deals">Deals</cds-header-nav-item>
+      <cds-header-nav-item href="#support">Support</cds-header-nav-item>
+    </cds-header-nav>
+  </cds-header>
 
   <header data-morph="hero" class="hero">
     <div data-morph-variant="visual">
@@ -26,21 +32,42 @@
 
   <section data-morph="gear-grid" class="section">
     <h2>Gear</h2>
-    <div class="grid">
+    <div class="grid grid-3">
       <cds-tile>
-        <h3>VOID Headset</h3><p>Wireless · 2.4GHz + BT · 38h · $199</p>
+        <img src="/img/gear-headset.jpg" alt="VOID Headset" />
         <div class="tags"><cds-tag type="green" size="sm">all models</cds-tag></div>
+        <h3>VOID Headset</h3><p>Wireless · 2.4GHz + BT · 38h · $199</p>
         <cds-button size="sm" data-morph="gear-headset" href="#">Add</cds-button>
       </cds-tile>
       <cds-tile>
-        <h3>CORE GPU Dock</h3><p>eGPU · TB4 · up to RTX-class cards · $349</p>
+        <img src="/img/gear-dock.jpg" alt="CORE GPU Dock" />
         <div class="tags"><cds-tag type="purple" size="sm">TB4 required</cds-tag></div>
+        <h3>CORE GPU Dock</h3><p>eGPU · TB4 · up to RTX-class cards · $349</p>
         <cds-button size="sm" data-morph="gear-gpu-dock" href="#">Add</cds-button>
       </cds-tile>
       <cds-tile>
-        <h3>SPAN Hub</h3><p>10-in-1 · dual 4K out · 100W PD · $89</p>
+        <img src="/img/gear-hub.jpg" alt="SPAN Hub" />
         <div class="tags"><cds-tag type="green" size="sm">all models</cds-tag></div>
+        <h3>SPAN Hub</h3><p>10-in-1 · dual 4K out · 100W PD · $89</p>
         <cds-button size="sm" data-morph="gear-hub" href="#">Add</cds-button>
+      </cds-tile>
+      <cds-tile>
+        <img src="/img/gear-keyboard.jpg" alt="KEYS Board" />
+        <div class="tags"><cds-tag type="green" size="sm">all models</cds-tag></div>
+        <h3>KEYS Board</h3><p>Low-profile mech · hot-swap · $149</p>
+        <cds-button size="sm" data-morph="gear-keyboard" href="#">Add</cds-button>
+      </cds-tile>
+      <cds-tile>
+        <img src="/img/gear-controller.jpg" alt="APEX Controller" />
+        <div class="tags"><cds-tag type="purple" size="sm">gamer pick</cds-tag></div>
+        <h3>APEX Controller</h3><p>Hall-effect sticks · BT/2.4GHz · $79</p>
+        <cds-button size="sm" data-morph="gear-controller" href="#">Add</cds-button>
+      </cds-tile>
+      <cds-tile>
+        <img src="/img/gear-case.jpg" alt="SHELL Case" />
+        <div class="tags"><cds-tag type="green" size="sm">13″–17″</cds-tag></div>
+        <h3>SHELL Case</h3><p>Recycled ballistic nylon · $59</p>
+        <cds-button size="sm" data-morph="gear-case" href="#">Add</cds-button>
       </cds-tile>
     </div>
   </section>
@@ -60,24 +87,41 @@
         <cds-structured-list-row><cds-structured-list-cell>VOID Headset</cds-structured-list-cell><cds-structured-list-cell>✓</cds-structured-list-cell><cds-structured-list-cell>✓</cds-structured-list-cell><cds-structured-list-cell>✓</cds-structured-list-cell></cds-structured-list-row>
         <cds-structured-list-row><cds-structured-list-cell>CORE GPU Dock</cds-structured-list-cell><cds-structured-list-cell>TB4 ×2</cds-structured-list-cell><cds-structured-list-cell>TB4 ×3</cds-structured-list-cell><cds-structured-list-cell>TB4 ×3</cds-structured-list-cell></cds-structured-list-row>
         <cds-structured-list-row><cds-structured-list-cell>SPAN Hub</cds-structured-list-cell><cds-structured-list-cell>✓</cds-structured-list-cell><cds-structured-list-cell>✓</cds-structured-list-cell><cds-structured-list-cell>✓ + SD</cds-structured-list-cell></cds-structured-list-row>
+        <cds-structured-list-row><cds-structured-list-cell>APEX Controller</cds-structured-list-cell><cds-structured-list-cell>✓</cds-structured-list-cell><cds-structured-list-cell>✓</cds-structured-list-cell><cds-structured-list-cell>✓</cds-structured-list-cell></cds-structured-list-row>
       </cds-structured-list-body>
     </cds-structured-list>
     <cds-accordion>
       <cds-accordion-item title="Does the GPU dock need external power?">Yes — 230W brick included; the laptop still charges through the same TB4 cable.</cds-accordion-item>
       <cds-accordion-item title="Headset latency in 2.4GHz mode?">18ms end-to-end, measured. Bluetooth fallback is ~90ms.</cds-accordion-item>
+      <cds-accordion-item title="Controller polling rate?">1000Hz over 2.4GHz, 125Hz over Bluetooth.</cds-accordion-item>
     </cds-accordion>
   </section>
 
   <section data-morph="reviews" class="section">
     <h2>Reviews</h2>
-    <blockquote>“The GPU dock turns the 13 into a desktop. Zero driver drama.” — gearlab.gg</blockquote>
+    <div class="grid grid-3">
+      <cds-tile><blockquote>“The GPU dock turns the 13 into a desktop. Zero driver drama.”</blockquote><p class="who">— gearlab.gg</p></cds-tile>
+      <cds-tile><blockquote>“38 hours on the headset is not marketing. We measured 41.”</blockquote><p class="who">— audiobench</p></cds-tile>
+      <cds-tile><blockquote>“Hall-effect sticks at this price is absurd.”</blockquote><p class="who">— padreview</p></cds-tile>
+    </div>
+  </section>
+
+  <section data-morph="newsletter" class="section band">
+    <h2>Stay in the loop</h2>
+    <p>Benchmarks and launches, once a month. No noise.</p>
+    <div class="band-row"><input type="email" placeholder="you@example.com" aria-label="email" /><cds-button data-morph="cta-newsletter" size="sm">Subscribe</cds-button></div>
   </section>
 
   <section data-morph="promo-banner" class="section">
     <cds-inline-notification kind="info" title="Winter sale" subtitle="up to 20% off, this week" hide-close-button low-contrast></cds-inline-notification>
   </section>
 
-  <footer data-morph="footer" class="store-footer">MIT demo · <a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a> × IBM Carbon</footer>
+  <footer data-morph="footer" class="store-footer cols">
+    <div><h4>Shop</h4><a href="/products.html">Laptops</a><a href="/accessories.html">Gear</a><a href="#deals">Deals</a></div>
+    <div><h4>Support</h4><a href="#support">Contact</a><a href="#support">Drivers</a><a href="#support">Warranty</a></div>
+    <div><h4>Company</h4><a href="#about">About</a><a href="#about">Careers</a><a href="#about">Press</a></div>
+    <div><h4>Project</h4><a href="https://github.com/Type-zero-labs/ui-morph">ui-morph</a><a href="https://carbondesignsystem.com">Carbon DS</a><span>MIT demo</span></div>
+  </footer>
 
   <script type="module" src="./main.ts"></script>
 </body>
