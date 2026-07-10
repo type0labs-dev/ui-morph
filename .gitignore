@@ -4,3 +4,4 @@ demo/dist/
 .env
 e2e/.results/
 playwright-report/
+sim-results/

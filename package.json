@@ -1,7 +1,7 @@
 {
   "name": "ui-morph",
   "version": "0.1.0",
-  "description": "Persona-driven generative UI mutations for existing websites — consent-first, page-boundary only, constrained to your design system. The LLM compiles itself out of the runtime.",
+  "description": "Persona-driven generative UI mutations for existing websites \u2014 consent-first, page-boundary only, constrained to your design system. The LLM compiles itself out of the runtime.",
   "keywords": [
     "generative-ui",
     "personalization",
@@ -38,7 +38,8 @@
     "demo:build": "vite build demo",
     "test": "node --test --experimental-strip-types test/*.test.ts",
     "e2e": "playwright test --project mvp1 --project carbon",
-    "e2e:live": "LIVE_LLM=1 playwright test --project live"
+    "e2e:live": "LIVE_LLM=1 playwright test --project live",
+    "sim": "node scripts/simulate.mjs"
   },
   "dependencies": {
     "zod": "^3.24.0"
