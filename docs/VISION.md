@@ -102,20 +102,29 @@ Any demo, feature or adapter must preserve them:
 
 ## Where the POC is today
 
-`src/` implements: consented signal collection → deterministic quantizer (4D persona:
-tier · intent · traits · pain) → chain cache (localStorage; remote adapter stub) →
-LLM cold path (OpenAI-compatible; mock injectable) → guard → DOM applier
-(`data-morph` attributes, five ops: hide/show/reorder/emphasize/swap-variant).
-Demo: two-page store + consent banner + live HUD + audit log. 8 unit tests on
-guard/quantizer; verified e2e (guard rejects `hide nav` bait; warm path replays
-3 ops with 0 LLM calls).
+`src/` implements: consented signal collection (protected zones excluded — chrome is
+not evidence) → deterministic quantizer (4D persona: tier · intent · traits · pain,
+with site-pluggable intent/trait rules) → chain cache (localStorage; remote adapter
+stub) → LLM cold path (OpenAI-compatible; mock injectable) → guard → DOM applier
+(`data-morph` attributes, five ops: hide/show/reorder/emphasize/swap-variant, with an
+attribute fallback that expresses token themes) → **pre-adaptation**
+(`Morph.precompile`: compile route B's chain while the visitor is on route A).
 
-## What the vision still asks for (candidate demo scope)
+Demo: three-page store + consent banner + live HUD showing persona, ranked objective
+probabilities, expected path and pre-adaptation status + audit log. 24 unit tests;
+scripted Playwright walkthrough (`npm run e2e`) with committed screenshot evidence.
+Spec and acceptance criteria: [`specs/demo-spec.md`](../specs/demo-spec.md).
 
-- Objective estimation with probabilities (persona → ranked objectives)
-- Expected-path derivation + **next-page pre-adaptation** (adapt route B while the
-  visitor is still on route A)
-- Persona-tier UI variations as token themes (`default` / `tech-savvy` / `gamer`)
+## Delivered from the candidate demo scope (2026-07)
+
+- ✅ Objective estimation with probabilities (deterministic, demo-side — sketch 04's
+  `purchase_accessories 87%` scene reproduces literally)
+- ✅ Expected-path derivation + next-page pre-adaptation
+- ✅ Persona-tier UI variations as token themes (`default` / `tech-savvy` / `gamer`)
+- ✅ Scripted, reproducible walkthrough with screenshot evidence (`e2e/evidence/`)
+
+## What the vision still asks for
+
 - Richer trait vocabulary approaching the sketches (engagement score, goals, blockers)
-- A scripted, reproducible walkthrough that *demonstrates* the salesman story
-  end-to-end — observable evidence, not narrative
+- Objective estimation fit on outcome data instead of authored priors
+- Stages 3–4 (PROVIDED / ENRICHED) as consent-gated adapters

@@ -73,7 +73,11 @@ npm install
 npm run demo   # http://localhost:5173
 ```
 
-A two-page laptop store with a live HUD showing the persona forming, chains compiling and the guard working. The mock cold path deliberately emits one forbidden op (`hide nav`) every time — watch the audit log reject it. Point it at a real local model with:
+A three-page laptop store (home → laptops → gear) with a live HUD showing the persona forming **as you browse**, objectives estimated with ranked probabilities (`purchase_accessories 87%`), the expected path derived from them, and the **next page being pre-adapted while you are still on this one** — gamer behavior gets the `gamer` token theme on the gear page before ever clicking into it. The mock cold path deliberately emits one forbidden op (`hide nav`) every time — watch the audit log reject it.
+
+The whole walkthrough is scripted and reproducible: `npm run e2e` replays it (cold act, then a second session that replays the identical chain with **zero** LLM calls) and drops screenshot evidence in [`e2e/evidence/`](./e2e/evidence/). Spec with acceptance criteria: [`specs/demo-spec.md`](./specs/demo-spec.md).
+
+Point the demo at a real local model with:
 
 ```js
 localStorage.setItem('ui-morph:demo:llm', JSON.stringify({
@@ -100,6 +104,10 @@ localStorage.setItem('ui-morph:demo:llm', JSON.stringify({
 
 - [x] Core engine: signals → quantize → guard → chain cache → DOM apply (tested)
 - [x] Demo with live HUD + audit log
+- [x] Objective estimation with ranked probabilities + expected-path derivation (demo-side, deterministic)
+- [x] Next-page pre-adaptation (`Morph.precompile` — compile route B's chain while the visitor is on route A)
+- [x] Persona-tier UI variations as design-token themes (`default` / `tech-savvy` / `gamer`), inside the existing op vocabulary
+- [x] Scripted e2e walkthrough with committed screenshot evidence (`npm run e2e`)
 - [ ] React/Vue store adapters (today: vanilla DOM via `data-morph`)
 - [ ] Similarity matching between persona keys (today: exact match)
 - [ ] Outcome feedback loop (chains that don't help get evicted)

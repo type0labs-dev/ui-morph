@@ -120,3 +120,19 @@ The core is built on, not rewritten. Three small additions, each justified:
 
 If a criterion cannot be met, this spec gets a "Gaps" section naming it and
 why — the criterion is never silently weakened.
+
+## Status (2026-07-09)
+
+All 8 criteria met — no gaps. `npm test` 24/24, `npm run e2e` 3/3 (stable
+across 9 consecutive runs), evidence committed in `e2e/evidence/`.
+
+Two findings surfaced by the walkthrough and folded back into core (both in
+the invariants' spirit, commits reference this spec):
+
+1. **Protected zones are now signal-invisible.** A click on the nav (protected)
+   registered as behavioral evidence at the pagehide flush — after the last
+   pre-adaptation tick — so the arrival persona no longer matched the
+   pre-compiled chain. Chrome is not evidence; the collector excludes
+   protected ids.
+2. **`precompile` audits cache hits.** A warm pre-adaptation was
+   indistinguishable from nothing having happened.
