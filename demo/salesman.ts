@@ -5,7 +5,39 @@ import type { Persona, QuantizeRules, Signals } from '../src/types.ts'
 // site rules the engine replays, not model output (the LLM only ever maps
 // persona → ops in the cold path).
 
-export type Theme = 'default' | 'tech-savvy' | 'gamer'
+export type Theme = 'default' | 'tech-savvy' | 'gamer' | 'comfort'
+
+// ── site-owned first-party stores (act 2: Dona Marta) ────────────────────────
+// The store's own search box / ad-landing terms and the simulated stage-3
+// PROVIDED profile live in site storage — site vocabulary reads them the same
+// way it reads clicks. Guarded: absent in node tests and in the MVP1 demo.
+
+export interface ProvidedProfile {
+  name?: string
+  ageRange?: string
+  prefs?: string[]
+  history?: string[]
+}
+
+export function searchTerms(): string {
+  try {
+    return sessionStorage.getItem('nova:search-terms') ?? ''
+  } catch {
+    return ''
+  }
+}
+
+export function providedProfile(): ProvidedProfile | null {
+  try {
+    return JSON.parse(localStorage.getItem('nova:provided') ?? 'null') as ProvidedProfile | null
+  } catch {
+    return null
+  }
+}
+
+const THIN = /fino|slim|thin/i
+const WHITE = /branco|white/i
+const GIFT = /presente|gift/i
 
 export interface RankedObjective {
   id: string
@@ -29,6 +61,12 @@ interface ScorePart {
 }
 const always = () => true
 const SCORING: Record<string, ScorePart[]> = {
+  buy_gift_laptop: [
+    { label: 'base rate', points: 5, when: always },
+    { label: 'gift-buyer trait', points: 40, when: (p) => has(p, 'gift-buyer') },
+    { label: 'thin/white product focus', points: 25, when: (p) => has(p, 'thin-focus') || has(p, 'color-white') },
+    { label: 'comfort trait', points: 10, when: (p) => has(p, 'comfort') },
+  ],
   purchase_accessories: [
     { label: 'base rate', points: 10, when: always },
     { label: 'gamer trait', points: 60, when: (p) => has(p, 'gamer') },
@@ -69,6 +107,7 @@ export function estimateObjectives(persona: Persona): RankedObjective[] {
 
 // expected page sequence per objective — the demo site's map, home → goal
 const PATHS: Record<string, string[]> = {
+  buy_gift_laptop: ['/index.html', '/products.html', '/product.html'],
   purchase_accessories: ['/index.html', '/products.html', '/accessories.html'],
   compare_specs: ['/index.html', '/products.html'],
   purchase_laptop: ['/index.html', '/products.html'],
@@ -90,6 +129,7 @@ export function nextRoute(objectives: RankedObjective[], currentRoute: string): 
 /** Persona → design-system theme tier. Variants of ONE system, never free generation. */
 export function themeFor(persona: Persona): Theme {
   if (has(persona, 'gamer')) return 'gamer'
+  if (has(persona, 'comfort')) return 'comfort'
   if (has(persona, 'technical') || has(persona, 'reader')) return 'tech-savvy'
   return 'default'
 }
@@ -101,10 +141,17 @@ const SPECCY = (id: string) => id.includes('specs') || id.includes('comparison')
 export const DEMO_QUANTIZE: QuantizeRules = {
   traitsOf(history) {
     const clicked = history.flatMap((s) => s.clicked)
-    const traits: string[] = []
-    if (clicked.some(GEAR)) traits.push('gamer')
-    if (clicked.some(SPECCY)) traits.push('technical')
-    return traits
+    const traits = new Set<string>()
+    if (clicked.some(GEAR)) traits.add('gamer')
+    if (clicked.some(SPECCY)) traits.add('technical')
+    const terms = searchTerms()
+    if (THIN.test(terms)) traits.add('thin-focus')
+    if (WHITE.test(terms)) traits.add('color-white')
+    if (GIFT.test(terms)) traits.add('gift-buyer')
+    const provided = providedProfile()
+    if (provided?.prefs?.includes('large-text')) traits.add('comfort')
+    if (provided?.history?.includes('gifts')) traits.add('gift-buyer')
+    return [...traits]
   },
 }
 
@@ -116,5 +163,12 @@ export function explainSiteTraits(history: Signals[]): string[] {
   if (gear.length) because.push(`trait gamer: clicked ${[...new Set(gear)].join(', ')}`)
   const speccy = clicked.filter(SPECCY)
   if (speccy.length) because.push(`trait technical: clicked ${[...new Set(speccy)].join(', ')}`)
+  const terms = searchTerms()
+  if (THIN.test(terms)) because.push(`trait thin-focus: searched "${terms}"`)
+  if (WHITE.test(terms)) because.push(`trait color-white: searched "${terms}"`)
+  if (GIFT.test(terms)) because.push(`trait gift-buyer: searched "${terms}"`)
+  const provided = providedProfile()
+  if (provided?.prefs?.includes('large-text')) because.push(`trait comfort: PROVIDED adapter — prefers larger text`)
+  if (provided?.history?.includes('gifts')) because.push(`trait gift-buyer: PROVIDED adapter — gift purchase history`)
   return because
 }

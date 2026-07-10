@@ -90,3 +90,76 @@ test('explainSiteTraits names the clicks behind each site trait', () => {
   assert.ok(because.some((b) => b.includes('technical') && b.includes('comparison')))
   assert.deepEqual(explainSiteTraits([sig({})]), [])
 })
+
+// ── act 2: Dona Marta — search terms, provided profile, gift objective ──
+
+function storageShim(): Storage {
+  const m = new Map<string, string>()
+  return {
+    getItem: (k: string) => m.get(k) ?? null,
+    setItem: (k: string, v: string) => void m.set(k, String(v)),
+    removeItem: (k: string) => void m.delete(k),
+    clear: () => m.clear(),
+    key: (i: number) => [...m.keys()][i] ?? null,
+    get length() {
+      return m.size
+    },
+  } as Storage
+}
+
+const marta: Persona = {
+  tier: 'narrow',
+  intent: 'browse',
+  traits: ['color-white', 'comfort', 'gift-buyer', 'thin-focus'],
+  painPoints: [],
+}
+
+test('search terms become site traits, PT and EN', () => {
+  globalThis.sessionStorage = storageShim()
+  globalThis.localStorage = storageShim()
+  sessionStorage.setItem('nova:search-terms', 'laptop fino branco')
+  const traits = DEMO_QUANTIZE.traitsOf!([sig({})])
+  assert.ok(traits.includes('thin-focus'))
+  assert.ok(traits.includes('color-white'))
+  sessionStorage.setItem('nova:search-terms', 'thin white laptop gift')
+  const en = DEMO_QUANTIZE.traitsOf!([sig({})])
+  assert.ok(en.includes('thin-focus') && en.includes('color-white') && en.includes('gift-buyer'))
+})
+
+test('PROVIDED profile becomes site traits, attributed to the adapter', () => {
+  globalThis.sessionStorage = storageShim()
+  globalThis.localStorage = storageShim()
+  localStorage.setItem('nova:provided', JSON.stringify({ name: 'Marta', ageRange: '65+', prefs: ['large-text'], history: ['gifts'] }))
+  const traits = DEMO_QUANTIZE.traitsOf!([sig({})])
+  assert.ok(traits.includes('comfort'))
+  assert.ok(traits.includes('gift-buyer'))
+  const because = explainSiteTraits([sig({})])
+  assert.ok(because.some((b) => b.includes('comfort') && b.includes('PROVIDED')))
+})
+
+test('explainSiteTraits names the search that fired the trait', () => {
+  globalThis.sessionStorage = storageShim()
+  globalThis.localStorage = storageShim()
+  sessionStorage.setItem('nova:search-terms', 'laptop fino branco')
+  const because = explainSiteTraits([sig({})])
+  assert.ok(because.some((b) => b.includes('thin-focus') && b.includes('laptop fino branco')))
+})
+
+test('gift persona ranks buy_gift_laptop on top, decomposed', () => {
+  const ranked = estimateObjectivesExplained(marta)
+  assert.equal(ranked[0]!.id, 'buy_gift_laptop')
+  assert.ok(ranked[0]!.p >= 0.75, `got ${ranked[0]!.p}`)
+  assert.ok(ranked[0]!.parts.some((x) => x.label.includes('gift')))
+})
+
+test('gift path leads to the product detail page', () => {
+  const ranked = estimateObjectives(marta)
+  assert.deepEqual(derivePath(ranked, '/products.html'), ['/product.html'])
+  assert.equal(nextRoute(ranked, '/products.html'), '/product.html')
+})
+
+test('themeFor: comfort below gamer, above tech-savvy', () => {
+  assert.equal(themeFor(marta), 'comfort')
+  assert.equal(themeFor({ ...marta, traits: [...marta.traits, 'gamer'] }), 'gamer')
+  assert.equal(themeFor({ ...marta, traits: ['comfort', 'technical'] }), 'comfort')
+})
