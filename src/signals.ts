@@ -9,14 +9,20 @@ export interface SignalCollector {
   stop(): void
 }
 
-export function collectSignals(doc: Document = document): SignalCollector {
+// `excluded` = protected manifest ids. Protected zones are site chrome: the
+// engine may not touch them, and symmetrically they are not behavioral
+// evidence — a click on the nav is navigation mechanics, not interest, and it
+// would flip traits at the exact moment a pre-adapted chain gets keyed.
+export function collectSignals(doc: Document = document, excluded: Set<string> = new Set()): SignalCollector {
   const startedAt = Date.now()
   const clicked: string[] = []
   const seen = new Set<string>()
   let maxScroll = 0
 
-  const morphId = (el: Element | null): string | null =>
-    el?.closest('[data-morph]')?.getAttribute('data-morph') ?? null
+  const morphId = (el: Element | null): string | null => {
+    const id = el?.closest('[data-morph]')?.getAttribute('data-morph') ?? null
+    return id && !excluded.has(id) ? id : null
+  }
 
   const onScroll = () => {
     const doc_ = doc.documentElement
@@ -35,7 +41,7 @@ export function collectSignals(doc: Document = document): SignalCollector {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue
         const id = entry.target.getAttribute('data-morph')
-        if (id) setTimeout(() => entry.isIntersecting && seen.add(id), 1000)
+        if (id && !excluded.has(id)) setTimeout(() => entry.isIntersecting && seen.add(id), 1000)
       }
     },
     { threshold: 0.5 },

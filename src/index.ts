@@ -96,7 +96,7 @@ export class Morph {
       applied.forEach((op) => this.audit('op-applied', JSON.stringify(op)))
     }
 
-    this.collector = collectSignals()
+    this.collector = collectSignals(document, new Set(manifest.entries.filter((e) => e.protected).map((e) => e.id)))
     window.addEventListener('pagehide', () => this.flush(), { once: true })
 
     // cold path — compile a chain for THIS route + current persona if missing,
