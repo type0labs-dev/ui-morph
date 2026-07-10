@@ -117,6 +117,31 @@ gating and cache economics untouched.
 Same as MVP1: unmet criterion ⇒ named gap in this spec, never a weakened
 criterion.
 
+## NOVA 3.0 — density update (2026-07-10)
+
+The store grows to enterprise-retailer density (the Dell/Lenovo *class* of
+layout — original NOVA content only; cloning a real retailer's site, copy,
+imagery or brand is explicitly out of bounds). New criteria:
+
+| # | Criterion | Proof |
+|---|---|---|
+| C11 | Density on a real DS: header is Carbon UI Shell (`cds-header` + nav, protected); home has ≥8 distinct sections (photo hero, deals strip, category tiles, featured grid, specs, tech articles, testimonials, newsletter, 4-column protected footer); products/gear list 6 photographed items each with tags/prices | e2e asserts (`cds-header` defined, section/img counts) + screenshots |
+| C12 | Content pattern on camera (sketch 02's `technical > social proof`): technical persona ⇒ `reorder articles-teaser before testimonials`, applied at the page boundary, why visible in the inspector; `ignored-cta` also hides the newsletter band | e2e DOM-order assert + inspector why assert + screenshot |
+
+Supporting decisions:
+- **Photos**: free-license (Unsplash license / CC0) images, downloaded once,
+  compressed and committed under `demo-carbon/img/`, each credited in
+  `demo-carbon/img/CREDITS.md`. No hotlinking — e2e stays offline and
+  deterministic.
+- **Mutation budget raised to 7 for this demo** (config value, not engine
+  change): the denser vocabulary makes 6 legitimate ops common for a
+  defined-tier persona (theme, hero, comparison/compat, specs emphasis, gear
+  emphasis, promo+newsletter hides); 5 was silently truncating honest chains.
+- Manifests: `demo-carbon` gets its own manifest module; MVP1's stays frozen.
+  The manifest-hash change kills the old Carbon-store chains automatically —
+  that is the designed behavior, not a migration.
+- R1–R8, C9, C10 remain in force and green.
+
 ## Status (2026-07-10)
 
 All criteria met (R1–R8 regression + C9a/b + C10a–d) — no gaps. All three
