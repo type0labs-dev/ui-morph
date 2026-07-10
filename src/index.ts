@@ -72,7 +72,10 @@ export class Morph {
     const p = this.personaLive()
     const store = this.cfg.store ?? localStore()
     const key = chainKey(personaKey(p), manifest.route, manifestHash(manifest))
-    if (await store.get(key)) return
+    if (await store.get(key)) {
+      this.audit('chain-hit', `${manifest.route}: chain cached — pre-adaptation ready, 0 LLM calls`)
+      return
+    }
     await this.compile(p, manifest, store, key)
   }
 

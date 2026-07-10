@@ -93,13 +93,15 @@ test('precompile is inert without consent', async () => {
   assert.equal(store.chains.size, 0)
 })
 
-test('precompile does not recompile an already-cached chain', async () => {
+test('precompile does not recompile an already-cached chain, and says so', async () => {
   const store = memoryStore()
+  const audit: AuditEvent[] = []
   let calls = 0
   const morph = new Morph({
     intents: ['browse'],
     store,
     propose: async () => (calls++, [{ op: 'show', target: 'gear-grid' }]),
+    onAudit: (e) => audit.push(e),
   })
   morph.setConsent(true)
 
@@ -108,6 +110,10 @@ test('precompile does not recompile an already-cached chain', async () => {
 
   assert.equal(calls, 1, 'second precompile is a cache hit, zero proposals')
   assert.equal(store.chains.size, 1)
+  assert.ok(
+    audit.some((e) => e.kind === 'chain-hit' && e.detail.includes('/accessories.html')),
+    'cache hit is observable in the audit trail',
+  )
 })
 
 test('personaLive equals persona when no page is being observed', () => {
