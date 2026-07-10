@@ -1,0 +1,118 @@
+# Demo 2 spec — Carbon store + realtime decision inspector
+
+> SDD artifact: precedes implementation. Builds on [`demo-spec.md`](./demo-spec.md)
+> (MVP1, kept as legacy/learning). Evidence lands in `e2e/evidence-carbon/`.
+
+## Why this demo exists
+
+MVP1 proved the pipeline on a hand-rolled CSS store. Two gaps remain for a
+convincing, presentable demonstration:
+
+1. **"Variants of a real design system"** was asserted with our own tokens.
+   Research (2026-07-10): no ready-made computer-store example exists for
+   Carbon/Material/etc — only framework tutorials and React e-commerce
+   boilerplates. So we rebuild the NOVA store on **IBM Carbon web components**:
+   real components (`cds-*` custom elements), real token themes. Carbon's
+   white/g90/g100 themes are token sets emitted as CSS custom properties via
+   `@carbon/styles`' `theme()` mixin — which is exactly what the engine's
+   attribute-mode `swap-variant` selects between. The op vocabulary does not
+   change; the design system underneath becomes real.
+2. **The reasoning was invisible.** The HUD showed *state* (persona, ranked
+   objectives) but not *why*: which behavior fired which trait, how an
+   objective's probability composes, why each mutation was chosen or rejected.
+   Demo 2 replaces the HUD with an **Inspector** that narrates enrichment →
+   objectives → path → decisions in realtime — sketch
+   `02-json-enrichment-progression.png`, live.
+
+## Scenario
+
+Same gamer script as MVP1 (Google → home → specs → laptops → gear teasers →
+pre-adapted gear page → warm second session), now on the Carbon store, with the
+inspector open telling the story at each step: signals streaming, traits
+appearing with their because, `purchase_accessories` climbing to 87% with the
+score breakdown visible, the gear route pre-compiling, the guard rejecting
+`hide nav` with its reason, and act 2 replaying everything from cache.
+
+## Acceptance criteria
+
+R1–R8: the eight MVP1 criteria ([demo-spec.md](./demo-spec.md)) re-asserted on
+the Carbon store by `e2e/carbon.spec.ts`. Plus:
+
+| # | Criterion | Proof |
+|---|---|---|
+| C9a | Store is built from Carbon custom elements (`cds-button`, `cds-tile`, `cds-tag`, `cds-structured-list`, `cds-accordion` — `:defined`) | e2e assert + screenshots |
+| C9b | Themes are Carbon token sets: computed `--cds-background` differs across `default` (white) / `tech-savvy` (g90) / `gamer` (g100 + purple accent overrides); unknown variants still rejected by guard | e2e assert + 3 screenshots `c9-theme-*.png` |
+| C10a | Trait appears in the inspector **with its because** right after the causing action, mid-page (`gamer ← clicked gear-*`) | e2e assert + screenshot |
+| C10b | Objective probability shows its composition (`base 10 + gamer 60 + technical 10 [+ evaluate 7] = 80/87%`) | e2e assert + screenshot `c10-breakdown.png` |
+| C10c | Every applied op is listed with its why; every rejection with the guard's reason | e2e assert + screenshot `c10-decisions.png` |
+| C10d | Persona JSON updates live (sketch-02 progression), changed fields highlighted | e2e assert (JSON text changes without navigation) + screenshot |
+
+## Out of scope (deliberate)
+
+- Real-LLM "why" — a model proposal is labeled `model proposal (cold path)`;
+  reasons exist only for the deterministic mock, honestly labeled.
+- Rebuilding/porting MVP1 (`demo/` stays as-is, its e2e suite becomes the
+  regression guard).
+- Carbon UI Shell (header/side-nav) and full grid system — heavy, adds nothing
+  to the thesis.
+
+## Invariants — unchanged
+
+Inspector consumes demo-side data (`signalsLive`, salesman breakdowns, mock
+whys) plus the audit trail. The model still receives exactly: quantized persona
++ page manifest. Mutations still apply only at page boundaries. Consent
+gating and cache economics untouched.
+
+## Core changes (additive; TDD; anything beyond is out of bounds)
+
+1. `Morph.signalsLive(): Signals[]` — history + current collector snapshot
+   (mirrors `personaLive`). The inspector needs the raw in-flight signals;
+   today only the quantized persona is public.
+2. `quantizeExplained(history, rules?)` → `{ persona, because: string[] }` —
+   the built-in rules that fired, in human-readable form. `quantize()` becomes
+   a thin wrapper; signature and determinism intact. Rationale: auditability
+   is a project value; explaining built-in derivation is the quantizer's job,
+   not the site's (site-vocabulary traits are explained by the site — see
+   `explainSiteTraits`).
+
+## Demo-side design
+
+- `demo/salesman.ts` (shared MVP1↔demo2, backward compatible):
+  `estimateObjectivesExplained` (parts `{label, points}` per objective;
+  `estimateObjectives` wraps it), `explainSiteTraits(history)` (because for
+  gamer/technical). SCORING refactored to declarative labeled parts.
+- `demo-carbon/` (new primary demo, `npm run demo:carbon`):
+  - Same three routes, same manifests and `data-morph` ids as MVP1 (imported
+    from a shared module) — light-DOM wrappers keep the collector/applier
+    contract; shadow-DOM click retargeting delivers host elements.
+  - `styles.scss`: `@use '@carbon/styles'`; `body` = `$white`;
+    `body[data-morph-variant-active='tech-savvy']` = `$g90`;
+    `'gamer'` = `$g100` + purple accent token overrides (a custom theme inside
+    the DS grammar).
+  - `inspector.ts`: docked, collapsible panel — SIGNALS (live, 500ms) →
+    PERSONA (progressive JSON, change flash, core + site becauses) →
+    OBJECTIVES (bars + expandable breakdown) → PATH & PRE-ADAPT (chain key,
+    compiling/ready) → DECISIONS (applied ops with why; rejections with guard
+    reason) → AUDIT. The mock cold path builds `[{op, why}]` internally; the
+    engine receives bare ops (contract unchanged), the inspector receives the
+    whys.
+
+## New dependencies (all demo/dev; the shipped library keeps zod as its only runtime dep)
+
+- `@carbon/web-components` — the point of the demo: real DS components.
+- `@carbon/styles` — token themes for the `theme()` mixin.
+- `sass` — required to compile `@carbon/styles` SCSS under vite.
+
+## Verify-before-implement probes (before page code)
+
+1. Minimal vite page: `cds-button` + `styles.scss` with three `theme()` zones
+   compiles; computed `--cds-background` differs per zone.
+2. Click inside a Carbon component (shadow DOM) → collector registers the
+   wrapper's `data-morph` (event retargeting).
+3. Lit rendering under Playwright `page.clock` (renders are microtask-driven,
+   expected immune to the fake clock) — probed before writing the full suite.
+
+## Honest-partial rule
+
+Same as MVP1: unmet criterion ⇒ named gap in this spec, never a weakened
+criterion.
