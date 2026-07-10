@@ -188,6 +188,18 @@ part of the pre-commit routine for this work. Probe (2026-07-10):
 the engine's real prompt — and diverged from the mock's choices, which is the
 point.
 
+## Status — C17, live cold path (2026-07-10)
+
+C17a/b/c met. Live evidence committed (`live-coldpath.png`: quantized persona
++ manifest sent, deepseek-chat's raw ops returned; `live-applied.png`: those
+ops shaping the next page load). 3 consecutive `npm run e2e:live` passes
+(~6–8s each); one transient network failure observed across all runs —
+expected for a real API, and the reason the live project is opt-in and outside
+the deterministic suites. Notable: the model's choices diverged from the
+mock's on the same persona (e.g. it kept the hero visual and hid the
+comparison for the gift buyer) — genuine generation, guard-validated. Mock
+suites unchanged and green (6/6). No key in the repo (`git grep` gate).
+
 ## Status — Act 2, Dona Marta (2026-07-10)
 
 C13–C16 met, everything prior still green (`npm run e2e` 6/6 across 3

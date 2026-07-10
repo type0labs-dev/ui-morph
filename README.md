@@ -83,11 +83,17 @@ The walkthrough plays **two acts on the same store**:
 
 Everything is scripted and reproducible: `npm run e2e` replays both walkthroughs (cold act, then a fresh session replaying the identical chain with **zero** LLM calls) and drops screenshot evidence in [`e2e/evidence-carbon/`](./e2e/evidence-carbon/) and [`e2e/evidence/`](./e2e/evidence/). Specs with acceptance criteria: [`specs/carbon-demo-spec.md`](./specs/carbon-demo-spec.md), [`specs/demo-spec.md`](./specs/demo-spec.md).
 
-Point either demo at a real local model with:
+### Live cold path
+
+By default the demos use a deterministic mock (reproducible walkthroughs are its job). To watch a **real model generate the adaptations during your navigation**, open the inspector's *settings · cold path* panel in the Carbon demo: paste any OpenAI-compatible endpoint + model + API key (OpenRouter, DeepSeek, a local Ollama…) and hit *use live model*. The COLD PATH section then shows each exchange as it happens — exactly what was sent (the quantized persona + the page manifest, nothing else) and the raw ops the model returned, with the guard's verdicts in the decisions log. Use *clear chains* to watch it generate again: once a chain is cached, the warm path deliberately never calls the model.
+
+Scripted check with a real model: put `OPENROUTER_API_KEY=…` in a local `.env` (gitignored) and run `npm run e2e:live`. The key lives only in your browser's localStorage / local `.env` — never in the repo.
+
+The MVP1 demo still accepts the same config via:
 
 ```js
 localStorage.setItem('ui-morph:demo:llm', JSON.stringify({
-  endpoint: 'http://localhost:11434/v1/chat/completions', model: 'llama3.1',
+  endpoint: 'https://openrouter.ai/api/v1/chat/completions', model: 'deepseek/deepseek-chat', apiKey: 'sk-…',
 }))
 ```
 
